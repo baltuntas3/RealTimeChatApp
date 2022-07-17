@@ -1,11 +1,14 @@
 const express = require('express')
 const router = express.Router()
 const UserService = require('../services/Users')
-// const NotificationService = require('../services/Notifications')
 const MessageService = require('../services/Messages')
-const logIn= require('../middlewares/LogIn')
+const NotificationService = require('../services/Notifications')
+const jwtHelper = require('../helpers/JwtHelper')
+const errorMessage= require('../helpers/ErrorHandling')
+const successMessage= require('../helpers/SuccessMessageBuilder')
+//middlewares
 const verifyToken= require('../middlewares/Auth')
-// const jwtHelper = require('../helpers/JwtHelper')
+//socket.io config ---> transfer to react
 const http = require('http');
 const server = http.createServer();
 server.listen(3005, () => {
@@ -43,23 +46,9 @@ io.on('connection', (socket) => {
 
 
 router.get('/logout' , verifyToken,(req, res) => {
- res.clearCookie("token")
- res.clearCookie("refreshToken")
-
-// res.cookie("token", "", {
-//     maxAge: 0,
-//     httpOnly: true,
-//   });
-
-//   res.cookie("refreshToken", "", {
-//     maxAge: 0,
-//     httpOnly: true,
-//   });
-//  res.json("oldu")
-// return next()
-    console.log(req.cookies)
-    res.json("sdsa")
-
+    res.clearCookie("token")
+    res.clearCookie("refreshToken")
+    res.json(successMessage("Başarılı bir şekilde çıkış yapıldı."))
 })
 
 
@@ -78,20 +67,57 @@ router.post('/sign-in', async (req, res) => {
 })
 
 
-router.post('/login',logIn, async(req,res)=>{
-    
-    if(res.statusCode == 200){
-            console.log('olduu asdas wwww')
+router.post('/login', async (req,res)=>{
+    try {
+        const {ACCESS_SECRET_KEY,REFRESH_TOKEN_SECRET_KEY,TOKEN_EXPIRE_TIME} = process.env
+        const userInformation = {"username": req.body.username, "password": req.body.password}
+        const user = await UserService.findByUserName(userInformation.username)
+
+        if (user) {
+            const pass =  jwtHelper.bcryptPasswordChecker(userInformation.password, user.password)//true or false
+                if (pass) {
+                    const accessToken= jwtHelper.generateJwtToken({'username': user.userName, 'id': user._id})
+                    const refreshToken= jwtHelper.generateRefreshJwtToken({'username': user.userName, 'id': user._id})
+                    req.user = user
+                    res.cookie("token",accessToken,{httpOnly: true})
+                    res.cookie("refreshToken",refreshToken,{httpOnly: true})
+                    return res.status(200).send({accessToken,refreshToken})
+                }else{
+                    return res.status(401).send(errorMessage('Bilgiler yanlış..'))
+                }
+
+
+        }
+        return res.status(401).send(errorMessage('Bilgiler yanlış..'))
+    } catch (e) {
+        return res.status(500).send(errorMessage(e.message))
     }
-    
 })
 
-router.get('/all/json', verifyToken , async (req, res) => {
-    const users = await UserService.findAll()
-    res.json(users)
+router.get('/send-request/:userId', verifyToken , async (req, res) => {
+    const {id} = req.user
+    const {userId}= req.params
+    const checkRequest = await NotificationService.queryOne({
+        fromUser:id,
+        toUser:userId
+    })
+
+    if(id!==userId && !checkRequest){
+        const userToSend = await UserService.find(userId)
+        console.log(userToSend)
+        if(userToSend && !userToSend.friends.includes(id)){//gönderilecek adam varsa ve arkadaşım değilse
+            const addRequest = await NotificationService.sendFriendRequest(id,userId)
+            console.log(addRequest)
+            return res.send(addRequest)
+        }
+    }
+        
+    res.send(errorMessage("Hata."))
 })
 
-
+//Gelen kutusu yap istekleri çek onaylarsa ekle
+// const userLoggedIn = await UserService.find(id)
+// userLoggedIn.friends.push(userToSend._id)
 
 
 

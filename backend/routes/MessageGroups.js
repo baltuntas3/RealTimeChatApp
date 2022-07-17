@@ -13,6 +13,7 @@ router.post('/', verifyToken, async (req, res) => {
 
 router.get('/inbox', verifyToken, async (req, res) => {
     const {id}=req.user
+    const {userId}=req.params
     const findMyGroups = await MessageGroupService.query({
         participants:{$in: id}
     })

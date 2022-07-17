@@ -1,10 +1,17 @@
+const errorMessage= require('../helpers/ErrorHandling')
+
 module.exports = class Service {
     async findAll() {
       return this.model.find()
     }
   
     async add(item) {
-      return this.model.create(item)
+      try {
+        return this.model.create(item)
+        
+      } catch (error) {
+        return errorMessage(error.message)
+      }
     }
   
     async  del(itemId) {
@@ -12,7 +19,11 @@ module.exports = class Service {
     }
   
     async find(itemId) {
-      return this.model.findById(itemId)
+      try {
+        return this.model.findById(itemId)
+      } catch (error) {
+        return errorMessage(error.message)
+      }
     }
     //This function in the wrong place
     async findByUserName(username) {

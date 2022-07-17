@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
+const errorMessage= require('../helpers/ErrorHandling')
 require('dotenv').config()
 
 
@@ -13,46 +14,30 @@ class JwtHelper{
     }
 
     generateJwtToken(payload){
-        return new Promise((resolve,reject)=>{
-            const accessToken = jwt.sign(payload, this.secret,{expiresIn:`${this.tokenExpireTime}`},(err,token)=>{
-                if(err) return reject(err)
-                resolve(token) 
-            })
-            
-        })
+        try {
+            const accessToken = jwt.sign(payload, this.secret,{expiresIn:`${this.tokenExpireTime}`})
+            return accessToken
+        } catch (error) {
+            return errorMessage(error.message)
+        }
     }
 
     generateRefreshJwtToken(payload){
-        return new Promise((resolve,reject)=>{
-            const accessRefreshToken = jwt.sign(payload, this.refreshSecret,(err,token)=>{
-                if(err) return reject(err)
-                resolve(token) 
-            })
-        })
+        try{
+            const accessRefreshToken = jwt.sign(payload, this.refreshSecret)
+            return accessRefreshToken
+        }catch (error) {
+            return errorMessage(error.message)
+        }
+       
     }
 
     bcryptPasswordChecker(formPassword,password){
-        return new Promise((resolve,reject)=>{
-            bcrypt.compare(formPassword, password,(err,isAuthenticated)=>{
-                if(err) return reject(err)
-                resolve(isAuthenticated) 
-            })
-        })
+            return bcrypt.compareSync(formPassword, password)
     }
 
     getPayload(token){
         return jwt.verify(token)
-    }
-
-
-    async regenerateTokenFromRefreshToken(refreshToken,refreshTokenSecret){
-        try {
-            const user= jwt.verify(refreshToken,refreshTokenSecret)
-            const accessToken=await this.generateJwtToken({'username': user.username, 'id': user.id})
-            return accessToken
-        } catch (error) {
-            return error.message
-        }
     }
 
 }

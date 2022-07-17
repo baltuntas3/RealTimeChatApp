@@ -13,15 +13,12 @@ const NorificationSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    message:{
-        type: String
-    },
-    isSeen:{
-        type: Boolean
-    } 
+    message:String,
+    isApproved:Boolean,
+    isSeen:Boolean
 })
 
-UserSchema.plugin(require('mongoose-autopopulate'))
+NorificationSchema.plugin(require('mongoose-autopopulate'))
 
 const NotificationModel = mongoose.model('Notification', NorificationSchema)
 
