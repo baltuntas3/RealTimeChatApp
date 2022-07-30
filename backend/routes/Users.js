@@ -9,36 +9,12 @@ const successMessage= require('../helpers/SuccessMessageBuilder')
 //middlewares
 const verifyToken= require('../middlewares/Auth')
 //socket.io config ---> transfer to react
-const http = require('http');
-const server = http.createServer();
-server.listen(3005, () => {
-    console.log('listening on *:3005');
-  });
-const { Server } = require("socket.io");
-const io = new Server(server,{
-  cors:[]
-});
+
+
 
 router.get('/',verifyToken,  (req, res) => {
     
-io.on('connection', (socket) => {
-    // console.log(socket.id,' a user connected');
-    socket.on('SendMessages',async (message,room)=>{
-    //   console.log(message,room)
-     if(room===''){
-      socket.broadcast.emit("GeneralRoom",message)
-     }
-     else{
-        const {id}= req.user
-        const isThereMessageRoom= await MessageService.sendPrivateMessage(id,message,room)
-        console.log(isThereMessageRoom)
-        socket.to(room).emit("PrivateRoom",message)
-     }
-    })
-    // socket.on("join-room",room=>{
-    //   socket.join(room)
-    // })
-  });
+
 
  
     res.sendFile('C:\\Users\\burak\\Documents\\VsCode\\RealTimeChatApp\\frontend\\index.html');
