@@ -32,7 +32,7 @@ const disconnectUser=(socketId)=>{
 }
 
 const getUserById=(userId)=>{
-  return users.find((user)=>user.userId===userId)
+  return users.find(user=>user.userId===userId)
 }
 io.on('connection', (socket) => {
 
@@ -49,11 +49,13 @@ io.on('connection', (socket) => {
     console.log("a user disconnect.")
   })
 
-  socket.on("sendPrivateMessage",({senderId,reveiverId,message})=>{
-    const {socketId}= getUserById(reveiverId)
-    io.to(socketId).emit("getPrivateMessage",{
-      senderId,message
-    })
+  socket.on("sendPrivateMessage",({senderId,receiverId,message})=>{
+    if(getUserById(receiverId)){
+      const {socketId}=getUserById(receiverId)
+      io.to(socketId).emit("getPrivateMessage",{
+        senderId,message
+      })
+    }
   })
 
 })

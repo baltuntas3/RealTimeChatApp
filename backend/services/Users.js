@@ -1,37 +1,10 @@
 const BaseService = require('./BaseService')
 const UserModel = require('../models/Users')
+const {MessageService,MessageGroupService} = require("./AllServices")
+
 const bcrypt = require('bcrypt')
 class UserService extends BaseService {
     model = UserModel
-
-
-    // userName: {
-    //     type: String,
-    //     required: true,
-    //     minlength: 4,
-    //     unique: true
-    // },
-    // password:{
-    //     type: String,
-    //     required: true,
-    //     minlength: 6
-    // },
-    // email:{
-    //     type: String,
-    //     required: true
-    // },
-    // age: {
-    //     type: Number,
-    //     required: true,
-    //     min: 18
-    // },
-    // authorities:{
-    //     type:[String]
-    // },
-    // friends:[{
-    //     type: mongoose.SchemaTypes.ObjectId,
-    //     ref: 'User', 
-    // }]
 
     async signIn(userInformation) {
         console.log(userInformation)
@@ -47,10 +20,38 @@ class UserService extends BaseService {
             })
             
         } catch (err) {
-            console.log(err.message)
+            return this.handleError(err.message)
         }
-        // return {hashedPassword,pass: userInformation.password,pa: pass}
-       
+    }
+
+    async sendMessage(groupId,senderId,message){
+        try {
+            const sendMessage = await MessageService.add({
+                messageGroupId:groupId,
+                sender:senderId,
+                message:message
+            })
+
+        res.json(sendMessage)
+            
+        } catch (err) {
+            return this.handleError(err.message)
+        }
+    }
+
+
+    async findAllMessages(){
+
+    }
+
+    async getUserInbox(userId){
+        try {
+            console.log(userId)
+            const findMyGroups = await MessageGroupService.getUserMessages(userId)
+            return findMyGroups
+        } catch (err) {
+            return this.handleError(err.message)
+        }
     }
 
 

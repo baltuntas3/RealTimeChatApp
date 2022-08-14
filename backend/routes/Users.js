@@ -8,17 +8,10 @@ const errorMessage= require('../helpers/ErrorHandling')
 const successMessage= require('../helpers/SuccessMessageBuilder')
 //middlewares
 const verifyToken= require('../middlewares/Auth')
-//socket.io config ---> transfer to react
 
-
-
-router.get('/',verifyToken,  (req, res) => {
-    
-
-
- 
-    res.sendFile('C:\\Users\\burak\\Documents\\VsCode\\RealTimeChatApp\\frontend\\index.html');
-  });
+// router.get('/',verifyToken,  (req, res) => {
+//     res.sendFile('C:\\Users\\burak\\Documents\\VsCode\\RealTimeChatApp\\frontend\\index.html');
+// });
 
 
 router.get('/logout' , verifyToken,(req, res) => {
@@ -29,7 +22,7 @@ router.get('/logout' , verifyToken,(req, res) => {
 
 
 //User Profile
-router.get('/:id', async (req, res) => {
+router.get('profile/:id', async (req, res) => {
     const {id}=req.params;
     const user = await UserService.find(id)
     res.send(user)
@@ -90,6 +83,34 @@ router.get('/send-request/:userId', verifyToken , async (req, res) => {
         
     res.send(errorMessage("Hata."))
 })
+
+
+
+router.post('/sendmessage', verifyToken, async (req, res) => {
+    const {groupId,senderId,message}=req.body
+    const sendMessage = await UserService.sendMessage(groupId,senderId,message)
+    res.json(sendMessage)
+
+})
+
+
+router.get('/messages/:groupId', verifyToken, async (req, res) => {
+    const {groupId}=req.params
+
+    const findAllMessages = await MessageService.query({
+        messageGroupId:groupId
+    })
+    res.json(findAllMessages)
+
+})
+
+
+router.get('/inbox', verifyToken, async (req, res) => {
+    const {id}=req.user
+    const userInbox = await UserService.getUserInbox(id)
+    res.json(userInbox)
+})
+
 
 //Gelen kutusu yap istekleri çek onaylarsa ekle
 // const userLoggedIn = await UserService.find(id)

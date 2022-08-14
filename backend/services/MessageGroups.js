@@ -6,14 +6,29 @@ class MessageGroupsService extends BaseService {
 
 
     async addGroup(senderId,receiverId){
+            if(senderId===receiverId)
+                return this.handleError("Kendinize mesaj gönderemezsiniz.")//ileride bunları statik yap.
+
         try {
-            return await this.add({
-                participants:[senderId,receiverId]
-            })
+            const isThereGroup= await this.query(
+                { participants: { $all: [senderId, receiverId] } }
+            )
+
+            if(!isThereGroup)
+                return await this.add({participants:[senderId,receiverId]})
+
+            return isThereGroup
+            
         } catch (error) {
-            return error.message
+            return this.handleError(error.message)
         }
-    }
+     }
+
+     async getUserMessages(userId){
+        return MessageGroupsModel.find({
+            participants:{$in: userId}
+        }).populate({path:"participants",select:"userName"})
+     }
 
 }
 

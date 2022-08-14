@@ -11,13 +11,18 @@ router.post('/', verifyToken, async (req, res) => {
 })
 
 
-router.get('/inbox', verifyToken, async (req, res) => {
-    const {id}=req.user
-    const {userId}=req.params
-    const findMyGroups = await MessageGroupService.query({
-        participants:{$in: id}
-    })
-    res.json(findMyGroups)
+// router.get('/inbox', verifyToken, async (req, res) => {
+//     const {id}=req.user
+//     const {userId}=req.params
+//     const findMyGroups = await MessageGroupService.query({
+//         participants:{$in: id}
+//     })
+//     res.json(findMyGroups)
+// })
+
+router.post('/addgroup',verifyToken, async (req,res)=>{
+    const group = await MessageGroupService.addGroup(id,"62d1b772d9f0103184f4e8b99920")
+    res.json(group)
 })
 
 //62d361ee869d429482cb80a1

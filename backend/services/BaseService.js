@@ -10,7 +10,7 @@ module.exports = class Service {
         return this.model.create(item)
         
       } catch (error) {
-        return errorMessage(error.message)
+        throw errorMessage(error.message)
       }
     }
   
@@ -31,7 +31,11 @@ module.exports = class Service {
     }
 
     async query(object){
-      return this.model.find(object)
+      try {
+        return this.model.find(object)
+      } catch (error) {
+        throw errorMessage(error.message)
+      }
     }
 
     async queryOne(object){
@@ -40,6 +44,10 @@ module.exports = class Service {
     
     async update(itemId,set) {
       return this.model.update(itemId,set,{upsert:true})
+    }
+
+    handleError(message){
+      return errorMessage(message)
     }
 }
   
