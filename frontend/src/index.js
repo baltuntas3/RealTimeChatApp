@@ -7,6 +7,7 @@ import {BrowserRouter} from 'react-router-dom'
 
 axios.defaults.baseURL="http://localhost:3000/"
 axios.defaults.withCredentials=true
+
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement);
 
