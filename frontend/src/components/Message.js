@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import jwtDecode from "jwt-decode";
-
+import { getInbox } from "../api";
 export default function Message(props) {
     const socket = useRef();
     const { groupId } = props;
@@ -27,19 +27,9 @@ export default function Message(props) {
         });
 
         socket.current.on("getPrivateMessage", (obj) => {
-            getInbox();
-            console.log(obj, "-------------------z");
+            setMessages(getInbox(groupId));
         });
     }, []);
-
-    async function getInbox() {
-        const getInbox = await axios.get("messages/" + groupId);
-        // socket?.on("GeneralRoom",message=>{
-        //   console.log(message,groupId)
-        // })
-        setMessages(getInbox.data);
-        console.log(getInbox.data, "------------------------------><");
-    }
 
     function getUser() {
         const token = localStorage.getItem("token");

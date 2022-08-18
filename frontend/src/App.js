@@ -5,24 +5,41 @@ import Home from "./pages/Home";
 import Messages from "./pages/Messages";
 import UserInbox from "./pages/UserInbox";
 import Chats from "./pages/Chats";
-import UserContextProvider from "./context/userContext";
 // import UserInbox from './pages/UserInbox';
+import { useUser } from "./context/userContext";
+import { logout } from "./api";
 
 function App() {
+    const { user, setUser } = useUser();
+
+    const logoutHandler = () => {
+        logout();
+        setUser(null);
+    };
+
     return (
-        <UserContextProvider>
+        <div>
             <nav>
-                <a href="/">Home </a>
-                <a href="/messages">messages </a>
-                <a href="/login"> login</a>
+                <Link to="/">Home</Link>
+
+                {user ? (
+                    <>
+                        <Link to="/messages">Messages</Link>
+                        <Link to="/" onClick={logoutHandler}>
+                            Logout
+                        </Link>
+                    </>
+                ) : (
+                    <Link to="/login">Login</Link>
+                )}
             </nav>
             <Routes>
                 <Route path="/" element={<Home />}></Route>
                 <Route path="/messages" element={<Messages />}></Route>
-                <Route path="/login" element={<LogIn />}></Route>
+                <Route path="/login" element={<LogIn />} />
                 <Route path="/chats" element={<Chats />}></Route>
             </Routes>
-        </UserContextProvider>
+        </div>
     );
 }
 
