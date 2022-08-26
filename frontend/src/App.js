@@ -1,4 +1,4 @@
-import LogIn from "./components/LogIn";
+import LogIn from "./pages/LogIn";
 import jwtDecode from "jwt-decode";
 import { Route, Routes, Link, NavLink } from "react-router-dom";
 import Home from "./pages/Home";

@@ -1,15 +1,10 @@
-import { useState, useEffect,useRef } from 'react';
-
-function Inbox(props) {
-
-    const {key,participants}=props
-      
-      return (
+function Inbox({ key, participants }) {
+    return (
         <div>
             {key}
-         {participants}
+            {participants}
         </div>
-      );
+    );
 }
 
-export default Inbox
+export default Inbox;
