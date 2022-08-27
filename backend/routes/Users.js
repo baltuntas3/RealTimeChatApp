@@ -27,7 +27,7 @@ router.get("profile/:id", async (req, res) => {
 });
 
 router.post("/sign-in", async (req, res) => {
-    // console.log(req.body)
+    console.log("reg body", req.body);
     const user = await UserService.signIn(req.body);
     res.send(user);
 });

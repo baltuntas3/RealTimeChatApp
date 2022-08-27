@@ -8,6 +8,7 @@ import Chats from "./pages/Chats";
 // import UserInbox from './pages/UserInbox';
 import { useUser } from "./context/userContext";
 import { logout } from "./api";
+import Register from "./pages/Register";
 
 function App() {
     const { user, setUser } = useUser();
@@ -20,7 +21,8 @@ function App() {
     return (
         <div>
             <nav>
-                <Link to="/">Home</Link>
+                {/* <Link to="/">Home</Link> */}
+                <Link to="/">Register</Link>
 
                 {user ? (
                     <>
@@ -34,10 +36,11 @@ function App() {
                 )}
             </nav>
             <Routes>
-                <Route path="/" element={<Home />}></Route>
-                <Route path="/messages" element={<Messages />}></Route>
+                <Route path="/" element={<Register />} />
+                <Route path="/messages" element={<Messages />} />
                 <Route path="/login" element={<LogIn />} />
-                <Route path="/chats" element={<Chats />}></Route>
+                <Route path="/chats" element={<Chats />} />
+                <Route path="/register" element={<Register />} />
             </Routes>
         </div>
     );

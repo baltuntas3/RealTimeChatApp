@@ -29,3 +29,12 @@ export async function getInbox(groupId) {
     const getInbox = await axios.get("messages/" + groupId);
     return getInbox.data;
 }
+
+export async function register(registerForm) {
+    try {
+        const { data } = await axios.post("users/sign-in", { ...registerForm, age: 20 });
+        return data;
+    } catch (error) {
+        return { error: error.response.data, status: error.response.status };
+    }
+}
