@@ -7,16 +7,23 @@ import UserInbox from "./pages/UserInbox";
 import Chats from "./pages/Chats";
 // import UserInbox from './pages/UserInbox';
 import { useUser } from "./context/userContext";
+import {useAlert} from "./context/alertContext";
 import { logout } from "./api";
 import Register from "./pages/Register";
+import {useEffect} from "react"
 
 function App() {
     const { user, setUser } = useUser();
+    const {alertMessage,setAlertMessage} = useAlert();
 
     const logoutHandler = () => {
         logout();
         setUser(null);
     };
+
+    useEffect(()=>{
+        console.log(alertMessage)
+    },[])
 
     return (
         <div>
