@@ -6,12 +6,8 @@ module.exports = class Service {
     }
   
     async add(item) {
-      try {
-        return this.model.create(item)
-        
-      } catch (error) {
-        throw errorMessage(error.message)
-      }
+        return this.model.create(item)        
+     
     }
   
     async  del(itemId) {

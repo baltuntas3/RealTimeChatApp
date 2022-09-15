@@ -33,7 +33,6 @@ const verifyToken = (req, res, next) => {
 
         return res.status(401).send(errorMessage("Invalid Token: "+err.message));
     }
-   
 }
 
 

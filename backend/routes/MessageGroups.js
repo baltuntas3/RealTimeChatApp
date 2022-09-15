@@ -21,7 +21,8 @@ router.post('/', verifyToken, async (req, res) => {
 // })
 
 router.post('/addgroup',verifyToken, async (req,res)=>{
-    const group = await MessageGroupService.addGroup(id,"62d1b772d9f0103184f4e8b99920")
+    const {senderId, receiverId} = req.body;
+    const group = await MessageGroupService.addGroup(senderId, receiverId)
     res.json(group)
 })
 
