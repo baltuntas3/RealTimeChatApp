@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { register } from "../api";
+import { register } from "../services/api";
 import { useNavigate } from "react-router";
 import Input from "../components/Input";
 import Alert from "../components/Alert";

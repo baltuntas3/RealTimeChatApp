@@ -1,32 +1,29 @@
 import LogIn from "./pages/LogIn";
-import jwtDecode from "jwt-decode";
 import { Route, Routes, Link, NavLink } from "react-router-dom";
-import Home from "./pages/Home";
 import Messages from "./pages/Messages";
-import UserInbox from "./pages/UserInbox";
 import Chats from "./pages/Chats";
-// import UserInbox from './pages/UserInbox';
 import { useUser } from "./context/userContext";
-import {useAlert} from "./context/alertContext";
-import { logout } from "./api";
+import { useAlert } from "./context/errorMessageContext";
+import { logout } from "./services/api";
 import Register from "./pages/Register";
-import {useEffect} from "react"
+import "./index.css";
 
 function App() {
+    //user için cookie kontrölü yap
     const { user, setUser } = useUser();
-    const {alertMessage,setAlertMessage} = useAlert();
+    const { alertMessage, setAlertMessage } = useAlert();
 
     const logoutHandler = () => {
         logout();
         setUser(null);
     };
 
-    useEffect(()=>{
-        console.log(alertMessage)
-    },[])
+    // useEffect(() => {
+    //     console.log("en iç ilk");
+    // }, []);
 
     return (
-        <div>
+        <div className="wrapper">
             <nav>
                 {/* <Link to="/">Home</Link> */}
                 <Link to="/">Register</Link>

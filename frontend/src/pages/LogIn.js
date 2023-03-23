@@ -1,15 +1,14 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode";
+// import { useNavigate } from "react-router-dom";
+// import jwt_decode from "jwt-decode";
 
 import Input from "../components/Input";
 import Alert from "../components/Alert";
-import { logIn } from "../api";
+// import { logIn } from "../services/api";
 import { useUser } from "../context/userContext";
 
 export default function LogIn() {
-    const navigate = useNavigate();
-    const { setUser } = useUser();
+    const { fetchCurrentUser } = useUser();
     const [error, setError] = useState();
 
     const usernameRef = useRef(null);
@@ -22,13 +21,7 @@ export default function LogIn() {
     });
 
     async function handleSubmit(e) {
-        const res = await logIn(values);
-        if (res.status === 200) {
-            setUser(jwt_decode(res.user.accessToken));
-            navigate("/chats");
-        } else {
-            setError(res.error);
-        }
+        await fetchCurrentUser(values);
     }
 
     function formChangeHandler(e) {
@@ -40,6 +33,10 @@ export default function LogIn() {
             nextRef.current.focus();
         }
     };
+
+    // useEffect(() => {
+    //     console.log(user, "-**-*-*-*-");
+    // }, [user]);
 
     useEffect(() => {
         usernameRef.current.focus();

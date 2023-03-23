@@ -1,0 +1,100 @@
+.container {
+    display: flex;
+    max-width: 1440px;
+    width: 95vw;
+    justify-content: center;
+    border: 1px solid black;
+}
+.left-side {
+    flex: 30%;
+    border: 1px solid black;
+}
+.right-side {
+    flex: 70%;
+    border: 1px solid black;
+}
+.profile {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+}
+.profile-photo {
+    margin: 5px;
+    border-radius: 50%;
+    width: 49px;
+    height: 49px;
+    border: 1px solid black;
+}
+.profile-menu {
+    display: flex;
+    border: 1px solid red;
+}
+.group-description {
+    display: flex;
+    flex-basis: auto;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: center;
+    min-width: 0;
+    padding-right: 15px;
+    border: 1px solid black;
+}
+.group-title {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black;
+}
+.group-check {
+    display: inline-block;
+    padding: 2px;
+}
+.group-last-message {
+    border: 1px solid black;
+}
+.new-message {
+    border: 1px solid black;
+}
+.search {
+    border: 1px solid black;
+}
+.groups {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid black;
+}
+.group-container {
+    display: flex;
+}
+.right-side {
+    border: 1px solid black;
+}
+.message-section {
+    /* height: 600px; scroll scroloğlunu ayarla */
+    border: 1px solid black;
+}
+.message {
+    border: 1px solid black;
+}
+.sender {
+    text-align: right;
+    border: 1px solid black;
+}
+.receiver {
+    border: 1px solid black;
+}
+.message-bottom {
+    display: flex;
+    justify-content: space-between;
+    /* flex-grow: 1; */
+    border: 1px solid black;
+}
+.message-text {
+    border: 1px solid black;
+}
+.message-send-button {
+    border: 1px solid black;
+}
+
+.title-container {
+    display: flex;
+}

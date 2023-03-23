@@ -1,62 +1,59 @@
 import React from "react";
-import Messages from "../components/Message";
 import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
-import axios from "axios";
-import jwtDecode from "jwt-decode";
+import "../styles/Messages.css";
+import { useUser } from "../context/userContext";
+import Groups from "../components/Messages/Groups";
+import Title from "../components/Messages/Title";
+import MessageSection from "../components/Messages/MessageSection";
+import Profile from "../components/Messages/Profile";
+import { getMessagesByGroupId, getInbox } from "../services/api";
 
 export default function MessagesPage() {
     const socket = useRef();
-    const [currentUser, setCurrentUser] = useState(null);
-    const [currentChat, setCurrentChat] = useState(null);
+    // const [currentUser, setCurrentUser] = useState(null);
+    const [currentChat, setCurrentChat] = useState(undefined);
     const [messages, setMessages] = useState([]);
-    const [conversations, setConversations] = useState([]);
+    const [conversations, setConversations] = useState(undefined);
     const [newMessage, setNewMessage] = useState("");
-    const [arrivalMessage, setArrivalMessage] = useState(null);
+    const [arrivalMessage, setArrivalMessage] = useState(undefined);
+    const { user } = useUser();
 
     async function getMessages() {
-        const getMessages = await axios.get("messages/" + currentChat?._id);
-        // socket?.on("GeneralRoom",message=>{
-        //   console.log(message,groupId)
-        // })
-        setConversations(getMessages.data);
-        console.log(getMessages.data, "------------------------------><");
-    }
-
-    function getUser() {
-        const token = localStorage.getItem("token");
-        const getUser = jwtDecode(token);
-        setCurrentUser(getUser);
-        return getUser;
+        if (currentChat) {
+            const [getMessages, error] = await getMessagesByGroupId(currentChat);
+            if (!error) setConversations(getMessages);
+        }
     }
 
     // getUser()
-    async function getInbox() {
-        const getInbox = await axios.get("users/inbox");
-        setMessages(getInbox.data);
+    async function getUserInbox() {
+        const [getData, error] = await getInbox();
+
+        if (!error) setMessages(getData);
+        // console.log(getData, "-----------------------------------2", error);
     }
 
-    async function handleSubmit(e) {
-        const messageBuilder = {
-            senderId: currentUser.id,
-            groupId: currentChat._id,
-            message: newMessage,
-        };
-        const send = await axios.post("messages/send", messageBuilder);
-        setConversations([...conversations, send.data]);
+    // async function handleSubmit(e) {
+    //     const messageBuilder = {
+    //         senderId: user.id,
+    //         groupId: currentChat._id,
+    //         message: newMessage,
+    //     };
+    //     const send = await axios.post("messages/send", messageBuilder);
+    //     setConversations([...conversations, send.data]);
 
-        const receiverId = currentChat.participants.find((member) => member._id !== currentUser.id);
+    //     const receiverId = currentChat.participants.find((member) => member._id !== user.id);
 
-        socket.current.emit("sendPrivateMessage", {
-            senderId: currentUser.id,
-            receiverId: receiverId._id, //user.id,
-            message: newMessage,
-        });
-    }
+    //     socket.current.emit("sendPrivateMessage", {
+    //         senderId: user.id,
+    //         receiverId: receiverId._id, //user.id,
+    //         message: newMessage,
+    //     });
+    // }
 
     useEffect(() => {
-        getInbox();
-        getUser();
+        getUserInbox();
     }, []);
 
     useEffect(() => {
@@ -65,6 +62,7 @@ export default function MessagesPage() {
 
     useEffect(() => {
         socket.current = io("ws://localhost:3005");
+
         socket.current.on("getPrivateMessage", (obj) => {
             console.log(obj, "*********************");
             setArrivalMessage({
@@ -72,48 +70,50 @@ export default function MessagesPage() {
                 message: obj.message,
             });
         });
+
+        return () => {
+            // Unmount
+            socket.current.disconnect();
+        };
     }, []);
 
     useEffect(() => {
-        const user = getUser();
         socket.current.emit("addUser", user.id);
         socket.current.on("getUsers", (users) => {
-            console.log(users);
+            console.log(users, "*0");
         });
-    }, []);
+    }, [user.id]);
 
     useEffect(() => {
-        console.log(arrivalMessage, "------aaa");
+        // console.log(arrivalMessage, "------aaa");
         arrivalMessage && setConversations((prev) => [...prev, arrivalMessage]);
     }, [arrivalMessage, currentChat]);
 
     return (
-        <div>
-            <h1>Message Field</h1>
-            {messages.map((data) => (
-                <div key={data._id}>
-                    {data.participants
-                        .filter((user) => user.userName !== currentUser.username)
-                        .map((user) => (
-                            <div key={user._id}>
-                                <div
-                                    onClick={() => setCurrentChat(data)}
-                                    style={{ border: "1px solid black", width: "200px", height: "100px" }}
-                                >
-                                    {user.userName}
-                                </div>
-                            </div>
-                        ))}
+        <div className="container">
+            <div className="left-side">
+                <Profile></Profile>
+                <div className="search">arama kısmı</div>
+                <div className="groups">
+                    {messages &&
+                        messages.map((val, id) => {
+                            return (
+                                <>
+                                    <button key={id} onClick={() => setCurrentChat(val._id)}>
+                                        <Groups key={id} groups={val}></Groups>
+                                    </button>
+                                </>
+                            );
+                        })}
                 </div>
-            ))}
-            {conversations?.map((conversations) => (
-                <div key={conversations._id}>{conversations.message}</div>
-            ))}
-
-            <div>
-                <textarea placeholder="bir şeyler yaz" onChange={(e) => setNewMessage(e.target.value)} />
-                <br />
-                <button onClick={handleSubmit}>Gönder</button>
+            </div>
+            <div className="right-side">
+                <Title></Title>
+                {conversations && <MessageSection messages={conversations}></MessageSection>}
+                <div className="message-bottom">
+                    <div className="message-text">mesaj yazılan yer</div>
+                    <div className="message-send-button">mesaj gönderme butonu</div>
+                </div>
             </div>
         </div>
     );
