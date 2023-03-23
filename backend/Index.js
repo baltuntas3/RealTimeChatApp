@@ -13,7 +13,7 @@ const server = http.createServer();
 const { Server } = require("socket.io");
 const { disconnect } = require("process");
 const io = new Server(server, {
-    cors: [],
+    cors: { origin: "*" },
 });
 
 app.use(cookieParser());
@@ -68,5 +68,5 @@ server.listen(3005, () => {
 });
 
 app.listen(5000, () => {
-    console.log("Server listening");
+    console.log("Server is listening...");
 });

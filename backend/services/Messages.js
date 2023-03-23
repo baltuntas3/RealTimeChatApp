@@ -1,30 +1,40 @@
-const BaseService = require('./BaseService')
-const MessageModel = require('../models/Messages')
+const BaseService = require("./BaseService");
+const MessageModel = require("../models/Messages");
 
 class MessageService extends BaseService {
-    model = MessageModel
+    model = MessageModel;
 
-    // async sendPrivateMessage(loggedInUser,message,room){
+    async sendMessage(groupId, senderId, message) {
+        try {
+            const sendMessage = await this.add({
+                messageGroupId: groupId,
+                sender: senderId,
+                message: message,
+            });
 
+            res.json(sendMessage);
+        } catch (err) {
+            return this.handleError(err.message);
+        }
+    }
 
-    //     // const isThereRoom= await this.getSocket(room)
-    //     // if(!isThereRoom){
-    //     //     return await this.add({
-    //     //         socketId:room,
-    //     //         participants: [loggedInUser,message.userSender],
-    //     //         messages:[{
-    //     //             sender:message.userSender,
-    //     //             message:message.message
-    //     //         }]
-    //     //     })
-    //     // }else{
-    //     //     // isThereRoom kayıt gelmiştir
-    //     //     console.log("kayıt bulundu.")
-    //     // }
-    // }
+    async findAllMessages(groupId) {
+        try {
+            return this.query({
+                messageGroupId: groupId,
+            });
+        } catch (err) {}
+    }
 
-    
-
+    async getLastMessageInGroup(groupId) {
+        try {
+            return this.findLastItem({
+                messageGroupId: groupId,
+            });
+        } catch (err) {
+            return this.handleError(err.message);
+        }
+    }
 }
 
-module.exports = new MessageService()
+module.exports = new MessageService();

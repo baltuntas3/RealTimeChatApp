@@ -1,17 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const UserService = require("../services/Users");
-const MessageService = require("../services/Messages");
-const NotificationService = require("../services/Notifications");
+const { UserService } = require("../services/AllServices");
 const jwtHelper = require("../helpers/JwtHelper");
 const errorMessage = require("../helpers/ErrorHandling");
 const successMessage = require("../helpers/SuccessMessageBuilder");
-//middlewares
-const verifyToken = require("../middlewares/Auth");
-
-// router.get('/',verifyToken,  (req, res) => {
-//     res.sendFile('C:\\Users\\burak\\Documents\\VsCode\\RealTimeChatApp\\frontend\\index.html');
-// });
 
 router.get("/logout", (req, res) => {
     res.clearCookie("token");
@@ -34,7 +26,6 @@ router.post("/sign-in", async (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
-        const { ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME } = process.env;
         const userInformation = { username: req.body.username, password: req.body.password };
         const user = await UserService.findByUserName(userInformation.username);
 
@@ -57,51 +48,58 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/send-request/:userId", verifyToken, async (req, res) => {
-    const { id } = req.user;
-    const { userId } = req.params;
-    const checkRequest = await NotificationService.queryOne({
-        fromUser: id,
-        toUser: userId,
-    });
+// router.get("/send-request/:userId", verifyToken, async (req, res) => {
+//     const { id } = req.user;
+//     const { userId } = req.params;
+//     const checkRequest = await NotificationService.queryOne({
+//         fromUser: id,
+//         toUser: userId,
+//     });
 
-    if (id !== userId && !checkRequest) {
-        const userToSend = await UserService.find(userId);
-        console.log(userToSend);
-        if (userToSend && !userToSend.friends.includes(id)) {
-            //gönderilecek adam varsa ve arkadaşım değilse
-            const addRequest = await NotificationService.sendFriendRequest(id, userId);
-            console.log(addRequest);
-            return res.send(addRequest);
-        }
-    }
+//     if (id !== userId && !checkRequest) {
+//         const userToSend = await UserService.find(userId);
+//         console.log(userToSend);
+//         if (userToSend && !userToSend.friends.includes(id)) {
+//             //gönderilecek adam varsa ve arkadaşım değilse
+//             const addRequest = await NotificationService.sendFriendRequest(id, userId);
+//             console.log(addRequest);
+//             return res.send(addRequest);
+//         }
+//     }
 
-    res.send(errorMessage("Hata."));
-});
+//     res.send(errorMessage("Hata."));
+// });
 
-router.post("/sendmessage", verifyToken, async (req, res) => {
-    const { groupId, senderId, message } = req.body;
-    const sendMessage = await UserService.sendMessage(groupId, senderId, message);
-    res.json(sendMessage);
-});
+// router.get("/denem", verifyToken, async (req, res) => {
 
-router.get("/messages/:groupId", verifyToken, async (req, res) => {
-    const { groupId } = req.params;
-
-    const findAllMessages = await MessageService.query({
-        messageGroupId: groupId,
-    });
-    res.json(findAllMessages);
-});
-
-router.get("/inbox", verifyToken, async (req, res) => {
-    const { id } = req.user;
-    const userInbox = await UserService.getUserInbox(id);
-    res.json(userInbox);
-});
+//     res.send(errorMessage("Hata."));
+// });
 
 //Gelen kutusu yap istekleri çek onaylarsa ekle
 // const userLoggedIn = await UserService.find(id)
 // userLoggedIn.friends.push(userToSend._id)
 
+// const jwt = require("jsonwebtoken");
+// require("dotenv").config();
+
+// const { ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME } = process.env;
+
+// router.get("/refresh-verify-token", async (req, res, next) => {
+//     try {
+//         const authHeader = req.headers["authorization"];
+//         const refreshToken = (authHeader && authHeader.split(" ")[1]) || req.cookies.refreshToken;
+//         if (refreshToken) {
+//             const refreshUser = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET_KEY);
+//             const newAccessToken = jwt.sign({ username: refreshUser.username, id: refreshUser.id }, ACCESS_SECRET_KEY, {
+//                 expiresIn: `${TOKEN_EXPIRE_TIME}`,
+//             });
+
+//             res.cookie("token", newAccessToken, { httpOnly: true });
+//             req.user = jwt.verify(newAccessToken, ACCESS_SECRET_KEY);
+//             return res.status(200).send(errorMessage("Invalid Token: "));
+//         }
+//     } catch (err) {
+//         return res.status(401).send(errorMessage("Invalid Token: " + err.message));
+//     }
+// });
 module.exports = router;

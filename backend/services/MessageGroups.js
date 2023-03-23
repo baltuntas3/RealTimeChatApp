@@ -4,25 +4,30 @@ const MessageGroupsModel = require("../models/MessageGroups");
 class MessageGroupsService extends BaseService {
     model = MessageGroupsModel;
 
-    async addGroup(senderId, receiverId) {
-    
-        if (senderId === receiverId) return this.handleError("Kendinize mesaj gönderemezsiniz."); //ileride bunları statik yap.
-
+    async addGroup(participants = []) {
         try {
-            const isThereGroup = await this.query({ participants: { $all: [senderId, receiverId] } });
+            //Burayı grup yap gendine gel dobarlan! Seni tebrik ediyorum. Maşaallah!
+            const isThereGroup = await this.query({ participants: { $all: participants } });
 
-            if (isThereGroup.length === 0) return await this.add({ participants: [senderId, receiverId] });
-
-            return isThereGroup;
+            if (!isThereGroup.length && participants.length > 0) {
+                return await this.add({ participants: participants });
+            } else {
+                //ileride bunları statik yap.(Hata mesajlarını)
+                return this.handleError("Böyle bir grup zaten mevcut!");
+            }
         } catch (error) {
             return this.handleError(error.message);
         }
     }
 
-    async getUserMessages(userId) {
-        return MessageGroupsModel.find({
-            participants: { $in: userId },
-        }).populate({ path: "participants", select: "userName" });
+    async listMyChatGroups(userId) {
+        try {
+            return MessageGroupsModel.find({
+                participants: { $in: userId },
+            }).populate({ path: "participants", select: "userName" });
+        } catch (err) {
+            console.log(err);
+        }
     }
 }
 

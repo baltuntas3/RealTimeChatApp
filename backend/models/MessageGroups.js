@@ -1,17 +1,22 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 
-const MessageGroupsSchema = new mongoose.Schema({
+const MessageGroupsSchema = new mongoose.Schema(
+    {
+        participants: [
+            {
+                type: mongoose.SchemaTypes.ObjectId,
+                ref: "User",
+            },
+        ],
+        groupName: String,
+    },
+    {
+        timestamps: true,
+    }
+);
 
-    participants: [{
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: 'User'
-    }]
-},{
-    timestamps:true
-})
+MessageGroupsSchema.plugin(require("mongoose-autopopulate"));
 
-MessageGroupsSchema.plugin(require('mongoose-autopopulate'))
+const MessageGroupsModel = mongoose.model("MessageGroups", MessageGroupsSchema);
 
-const MessageGroupsModel = mongoose.model('MessageGroups', MessageGroupsSchema)
-
-module.exports = MessageGroupsModel
+module.exports = MessageGroupsModel;
