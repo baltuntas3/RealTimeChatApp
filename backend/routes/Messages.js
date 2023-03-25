@@ -23,7 +23,6 @@ router.get("/group-messages/:groupId", verifyToken, async (req, res) => {
 
 router.get("/inbox", verifyToken, async (req, res) => {
     const { id } = req.user;
-    console.log(id, "--1");
     const userInbox = await MessageGroupService.listMyChatGroups(id);
     res.json(userInbox);
 });

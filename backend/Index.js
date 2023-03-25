@@ -11,7 +11,6 @@ const cookieParser = require("cookie-parser");
 const http = require("http");
 const server = http.createServer();
 const { Server } = require("socket.io");
-const { disconnect } = require("process");
 const io = new Server(server, {
     cors: { origin: "*" },
 });
@@ -30,9 +29,9 @@ const disconnectUser = (socketId) => {
     users = users.filter((user) => user.socketId !== socketId);
 };
 
-const getUserById = (userId) => {
-    return users.find((user) => user.userId === userId);
-};
+// const getUserById = (userId) => {
+//     return users.find((user) => user.userId === userId);
+// };
 io.on("connection", (socket) => {
     socket.on("addUser", (getUserId) => {
         console.log("a user connected.");
@@ -47,14 +46,26 @@ io.on("connection", (socket) => {
         console.log("a user disconnect.");
     });
 
-    socket.on("sendPrivateMessage", ({ senderId, receiverId, message }) => {
-        if (getUserById(receiverId)) {
-            const { socketId } = getUserById(receiverId);
-            io.to(socketId).emit("getPrivateMessage", {
-                senderId,
-                message,
-            });
-        }
+    socket.on("joinGroup", (groupId) => {
+        socket.join(groupId);
+    });
+
+    socket.on("leaveGroup", (groupId) => {
+        socket.leave(groupId);
+    });
+
+    socket.on("sendGroupMessage", ({ senderId, groupId, message }) => {
+        socket.to(groupId).emit("getGroupMessage", {
+            senderId: senderId,
+            message: message,
+        });
+
+        //     if (getUserById(receiverId)) {
+        //         const { socketId } = getUserById(receiverId);
+        //         io.to(socketId).emit("getPrivateMessage", {
+        //             senderId,
+        //             message,
+        //         });
     });
 });
 //socket.io implementation end
