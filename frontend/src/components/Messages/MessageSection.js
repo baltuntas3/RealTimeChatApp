@@ -8,7 +8,7 @@ export default function MessageSection({ messages }) {
             {/* iterate this two element  */}
             {messages.map((val, id) => {
                 const { sender, message } = val;
-                return sender == user.id ? (
+                return sender === user.id ? (
                     <div key={id} className="message sender">
                         {message}
                     </div>

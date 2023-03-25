@@ -3,11 +3,14 @@ import { useState, useEffect, useRef } from "react";
 import io from "socket.io-client";
 import "../styles/Messages.css";
 import { useUser } from "../context/userContext";
+import { useMessage } from "../context/messageContext";
+
 import Groups from "../components/Messages/Groups";
 import Title from "../components/Messages/Title";
 import MessageSection from "../components/Messages/MessageSection";
 import Profile from "../components/Messages/Profile";
-import { getMessagesByGroupId, getInbox } from "../services/api";
+import { getMessagesByGroupId, getInbox, sendMessage } from "../services/api";
+import Input from "../components/Input";
 
 export default function MessagesPage() {
     const socket = useRef();
@@ -18,10 +21,11 @@ export default function MessagesPage() {
     const [newMessage, setNewMessage] = useState("");
     const [arrivalMessage, setArrivalMessage] = useState(undefined);
     const { user } = useUser();
+    const { setSelectedGroup } = useMessage();
 
     async function getMessages() {
         if (currentChat) {
-            const [getMessages, error] = await getMessagesByGroupId(currentChat);
+            const [getMessages, error] = await getMessagesByGroupId(currentChat?._id);
             if (!error) setConversations(getMessages);
         }
     }
@@ -29,28 +33,20 @@ export default function MessagesPage() {
     // getUser()
     async function getUserInbox() {
         const [getData, error] = await getInbox();
-
         if (!error) setMessages(getData);
-        // console.log(getData, "-----------------------------------2", error);
     }
 
-    // async function handleSubmit(e) {
-    //     const messageBuilder = {
-    //         senderId: user.id,
-    //         groupId: currentChat._id,
-    //         message: newMessage,
-    //     };
-    //     const send = await axios.post("messages/send", messageBuilder);
-    //     setConversations([...conversations, send.data]);
-
-    //     const receiverId = currentChat.participants.find((member) => member._id !== user.id);
-
-    //     socket.current.emit("sendPrivateMessage", {
-    //         senderId: user.id,
-    //         receiverId: receiverId._id, //user.id,
-    //         message: newMessage,
-    //     });
-    // }
+    async function handleSubmit(e) {
+        const messageBuilder = {
+            senderId: user.id,
+            groupId: currentChat._id,
+            message: newMessage.target.value,
+        };
+        const [send, err] = await sendMessage(messageBuilder);
+        if (!err) setConversations([...conversations, send]);
+        // const receiverId = currentChat.participants.find((member) => member._id !== user.id);
+        socket.current.emit("sendGroupMessage", messageBuilder);
+    }
 
     useEffect(() => {
         getUserInbox();
@@ -63,8 +59,8 @@ export default function MessagesPage() {
     useEffect(() => {
         socket.current = io("ws://localhost:3005");
 
-        socket.current.on("getPrivateMessage", (obj) => {
-            console.log(obj, "*********************");
+        socket.current.on("getGroupMessage", (obj) => {
+            console.log("*********************", obj);
             setArrivalMessage({
                 senderId: obj.senderId,
                 message: obj.message,
@@ -80,12 +76,12 @@ export default function MessagesPage() {
     useEffect(() => {
         socket.current.emit("addUser", user.id);
         socket.current.on("getUsers", (users) => {
+            // you can catch the online users.
             console.log(users, "*0");
         });
     }, [user.id]);
 
     useEffect(() => {
-        // console.log(arrivalMessage, "------aaa");
         arrivalMessage && setConversations((prev) => [...prev, arrivalMessage]);
     }, [arrivalMessage, currentChat]);
 
@@ -99,7 +95,20 @@ export default function MessagesPage() {
                         messages.map((val, id) => {
                             return (
                                 <>
-                                    <button key={id} onClick={() => setCurrentChat(val._id)}>
+                                    <button
+                                        key={id}
+                                        onClick={() => {
+                                            socket.current.emit("joinGroup", val._id);
+                                            setCurrentChat((prev) => {
+                                                if (prev) socket.current.emit("leaveGroup", prev._id);
+                                            });
+                                            setCurrentChat(val);
+                                            setSelectedGroup({
+                                                groupName: val.groupName,
+                                                participants: val.participants,
+                                            });
+                                        }}
+                                    >
                                         <Groups key={id} groups={val}></Groups>
                                     </button>
                                 </>
@@ -111,8 +120,12 @@ export default function MessagesPage() {
                 <Title></Title>
                 {conversations && <MessageSection messages={conversations}></MessageSection>}
                 <div className="message-bottom">
-                    <div className="message-text">mesaj yazılan yer</div>
-                    <div className="message-send-button">mesaj gönderme butonu</div>
+                    <div className="message-text">
+                        <Input className="message-input" onChange={setNewMessage}></Input>
+                    </div>
+                    <button className="message-send-button" onClick={handleSubmit}>
+                        Gönder
+                    </button>
                 </div>
             </div>
         </div>

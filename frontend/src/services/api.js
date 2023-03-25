@@ -67,4 +67,11 @@ async function getLastMessageInGroup(groupId) {
     return [getLastMessage.data, undefined];
 }
 
-export { register, getInbox, logout, logIn, getMessagesByGroupId, getLastMessageInGroup };
+async function sendMessage(messageBuilder) {
+    const [message, error] = await handleRequest("messages/send", messageBuilder);
+    if (error) return [undefined, error];
+
+    return [message.data, undefined];
+}
+
+export { register, getInbox, logout, logIn, getMessagesByGroupId, getLastMessageInGroup, sendMessage };

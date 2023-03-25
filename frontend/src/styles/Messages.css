@@ -89,10 +89,18 @@
     border: 1px solid black;
 }
 .message-text {
+    width: 90%;
+    padding: 5px;
+    border-radius: 5px;
     border: 1px solid black;
 }
 .message-send-button {
+    width: 10%;
     border: 1px solid black;
+}
+
+.message-input {
+    width: calc(100% - 10px);
 }
 
 .title-container {

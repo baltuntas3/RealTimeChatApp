@@ -7,6 +7,7 @@ import { useAlert } from "./context/errorMessageContext";
 import { logout } from "./services/api";
 import Register from "./pages/Register";
 import "./index.css";
+import MessageContextProvider from "./context/messageContext";
 
 function App() {
     //user için cookie kontrölü yap
@@ -41,7 +42,14 @@ function App() {
             </nav>
             <Routes>
                 <Route path="/" element={<Register />} />
-                <Route path="/messages" element={<Messages />} />
+                <Route
+                    path="/messages"
+                    element={
+                        <MessageContextProvider>
+                            <Messages />
+                        </MessageContextProvider>
+                    }
+                />
                 <Route path="/login" element={<LogIn />} />
                 <Route path="/chats" element={<Chats />} />
                 <Route path="/register" element={<Register />} />

@@ -1,10 +1,22 @@
+import { useMessage } from "../../context/messageContext";
+
 export default function Title() {
+    const { selectedGroup } = useMessage();
+    // const { groupName, participants } = selectedGroup;
     return (
         <div className="title-container">
             <div className="profile-photo">profil fotoğrafı</div>
             <div className="group-description">
-                <div className="group-title">grup başlığı</div>
-                <div className="group-last-message">grupdaki kişiler</div>
+                <div className="group-title">{selectedGroup && selectedGroup.groupName}</div>
+                <div className="group-last-message">
+                    {selectedGroup &&
+                        selectedGroup.participants.map(({ userName }, id) => (
+                            <span key={id}>
+                                {id > 0 && ", "}
+                                {userName}
+                            </span>
+                        ))}
+                </div>
             </div>
         </div>
     );
