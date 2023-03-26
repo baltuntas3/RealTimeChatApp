@@ -69,18 +69,30 @@
     border: 1px solid black;
 }
 .message-section {
+    height: 80vh;
+    overflow: auto;
+    overflow-y: initial;
     /* height: 600px; scroll scroloğlunu ayarla */
-    border: 1px solid black;
+    /* border: 1px solid black; */
 }
 .message {
-    border: 1px solid black;
+    white-space: pre-wrap;
+    /* border: 1px solid black; */
+}
+.message-content {
+    width: 80%;
+    border-radius: 6px;
+    word-wrap: break-word;
 }
 .sender {
+    background-color: bisque;
+
     text-align: right;
-    border: 1px solid black;
+    margin-right: 0;
+    margin-left: auto;
 }
 .receiver {
-    border: 1px solid black;
+    background-color: aquamarine;
 }
 .message-bottom {
     display: flex;
