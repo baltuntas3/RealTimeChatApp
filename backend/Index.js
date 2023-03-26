@@ -56,6 +56,7 @@ io.on("connection", (socket) => {
 
     socket.on("sendGroupMessage", ({ senderId, groupId, message }) => {
         socket.to(groupId).emit("getGroupMessage", {
+            groupId: groupId,
             senderId: senderId,
             message: message,
         });
