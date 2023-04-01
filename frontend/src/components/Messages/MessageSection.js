@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useUser } from "../../context/userContext";
 import Input from "../Input";
 import { getMessagesPagination, sendMessage } from "../../services/api";
@@ -26,22 +26,17 @@ export default function MessageSection({ groupId, currentSocket }) {
         }
     }
 
-    function scrollEvent(e) {
-        // TODO: Add css and profile photo.
-
+    const scrollEvent = useCallback((e) => {
         if (e.target.scrollTop < 100 && e.target.scrollTop && scrollable) {
             setPageNumber((prev) => prev + 1);
         }
         console.log("scrolling");
-    }
+    }, []);
 
     useEffect(() => {
         messageSection.current.addEventListener("scroll", scrollEvent);
-        return () => {
-            messageSection.current && messageSection.current.removeEventListener("scroll", scrollEvent);
-            // It does not work.
-        };
-    }, [messageSection.current, scrollable]);
+        if (!scrollable) messageSection.current.removeEventListener("scroll", scrollEvent);
+    }, [scrollable]);
 
     useEffect(() => {
         if (pageNumber > 1) {
