@@ -25,6 +25,14 @@ module.exports = class Service {
         return this.model.find(object);
     }
 
+    async queryPagination(findByObject, pageNumber, nPerPage, sort = { createdAt: -1 }) {
+        return this.model
+            .find(findByObject)
+            .sort(sort)
+            .skip(pageNumber > 0 ? (pageNumber - 1) * nPerPage : 0)
+            .limit(nPerPage);
+    }
+
     async queryOne(object) {
         return this.model.findOne(object);
     }

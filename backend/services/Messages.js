@@ -35,6 +35,14 @@ class MessageService extends BaseService {
             return this.handleError(err.message);
         }
     }
+
+    async getMessagesPagination(groupId, pageNumber, nPerPage) {
+        try {
+            return this.queryPagination({ messageGroupId: groupId }, pageNumber, nPerPage);
+        } catch (err) {
+            return this.handleError(err.message);
+        }
+    }
 }
 
 module.exports = new MessageService();

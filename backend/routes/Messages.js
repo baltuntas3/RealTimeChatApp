@@ -33,4 +33,11 @@ router.get("/get-last-message/:groupId", verifyToken, async (req, res) => {
     res.json(lastMessage);
 });
 
+router.post("/group-messages-pagination", verifyToken, async (req, res) => {
+    const { groupId, pageNumber, nPerPage } = req.body;
+
+    const findAllMessages = await MessageService.getMessagesPagination(groupId, pageNumber, nPerPage);
+    res.json(findAllMessages);
+});
+
 module.exports = router;
