@@ -73,5 +73,21 @@ async function sendMessage(messageBuilder) {
 
     return [message.data, undefined];
 }
+// /group-messages-pagination
+async function getMessagesPagination(payload) {
+    const [getMessagesPagination, error] = await handleRequest("messages/group-messages-pagination", payload);
+    if (error) return [undefined, error];
 
-export { register, getInbox, logout, logIn, getMessagesByGroupId, getLastMessageInGroup, sendMessage };
+    return [getMessagesPagination.data, undefined];
+}
+
+export {
+    register,
+    getInbox,
+    logout,
+    logIn,
+    getMessagesByGroupId,
+    getLastMessageInGroup,
+    sendMessage,
+    getMessagesPagination,
+};

@@ -82,7 +82,7 @@ export default function MessagesPage() {
                                             });
                                         }}
                                     >
-                                        <Groups key={id} groups={val}></Groups>
+                                        <Groups key={id} id={val._id} groups={val}></Groups>
                                     </button>
                                 </>
                             );

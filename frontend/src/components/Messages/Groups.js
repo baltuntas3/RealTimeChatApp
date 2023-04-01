@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { getLastMessageInGroup } from "../../services/api";
 import { useMessage } from "../../context/messageContext";
 
-export default function Groups({ groups }) {
+export default function Groups({ groups, id }) {
     // getLastMessageInGroup
     const { _id, groupName } = groups;
     const { lastMessage } = useMessage();
@@ -15,7 +15,10 @@ export default function Groups({ groups }) {
     }
 
     useEffect(() => {
-        console.log(lastMessage);
+        // console.log(key);
+        if (id === lastMessage.groupId) {
+            setLocalLastMessage(lastMessage.message);
+        }
     }, [lastMessage]);
 
     useEffect(() => {
@@ -26,9 +29,6 @@ export default function Groups({ groups }) {
         return string.length > 20 ? string.slice(0, 20) + "..." : string;
     }
 
-    // Api isteği olup son mesaj alınacak, kişisel V
-    // mesajsa bireyin adı grup ise grup ismi gelecek başlığa V
-    // Son mesajı ya soketten al ya da veritabanından
     return (
         <div className="group-container">
             <div className="profile-photo">asd</div>

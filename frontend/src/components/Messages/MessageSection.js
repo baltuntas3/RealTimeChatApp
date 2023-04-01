@@ -1,49 +1,75 @@
 import { useState, useEffect, useRef } from "react";
 import { useUser } from "../../context/userContext";
 import Input from "../Input";
-import { getMessagesByGroupId, getInbox, sendMessage } from "../../services/api";
+import { getMessagesPagination, sendMessage } from "../../services/api";
 import Title from "./Title";
 import { useMessage } from "../../context/messageContext";
 
 // import Title from "./Title";
 
 export default function MessageSection({ groupId, currentSocket }) {
+    const { user } = useUser();
+    const { setLastMessage } = useMessage();
+
+    const messageSection = useRef(null);
+    const [newMessage, setNewMessage] = useState("");
+    const [arrivalMessage, setArrivalMessage] = useState(undefined);
+    const [scrollable, setScrollable] = useState(true);
+    const [conversations, setConversations] = useState([]);
+    const [pageNumber, setPageNumber] = useState(1);
+
     async function getMessages() {
         if (groupId) {
-            const [getMessages, error] = await getMessagesByGroupId(groupId);
-            if (!error) setConversations(getMessages);
+            const payload = { groupId: groupId, pageNumber: 1, nPerPage: 30 };
+            const [getMessagesData, error] = await getMessagesPagination(payload);
+            if (!error) setConversations(getMessagesData.reverse());
         }
     }
 
-    const { user } = useUser();
-    const { setLastMessage, setSelectedGroup } = useMessage();
+    function scrollEvent(e) {
+        // TODO: Add css and profile photo.
 
-    const [newMessage, setNewMessage] = useState("");
-    const [arrivalMessage, setArrivalMessage] = useState(undefined);
-    const [conversations, setConversations] = useState([]);
-    // const [currentChat, setCurrentChat] = useState(undefined);
+        if (e.target.scrollTop < 100 && e.target.scrollTop && scrollable) {
+            setPageNumber((prev) => prev + 1);
+        }
+        console.log("scrolling");
+    }
 
-    const that = document.getElementById("deneme");
     useEffect(() => {
-        that.scrollTo(0, that.scrollHeight);
-        console.log(that.scrollHeight, "**");
+        messageSection.current.addEventListener("scroll", scrollEvent);
+        return () => {
+            messageSection.current && messageSection.current.removeEventListener("scroll", scrollEvent);
+            // It does not work.
+        };
+    }, [messageSection.current, scrollable]);
+
+    useEffect(() => {
+        if (pageNumber > 1) {
+            onPageChange();
+            console.log(pageNumber);
+        }
+    }, [pageNumber]);
+
+    useEffect(() => {
+        setPageNumber(1);
         getMessages();
-    }, [groupId, that.scrollHeight]);
+        return () => {
+            setScrollable(true);
+        };
+    }, [groupId]);
+
+    useEffect(() => {
+        setScrollPos();
+    }, [conversations]);
 
     useEffect(() => {
         currentSocket &&
             currentSocket.on("getGroupMessage", (obj) => {
-                // console.log("*********************", obj, " innnner");
-                // set current message
                 setArrivalMessage({
                     senderId: obj.senderId,
                     message: obj.message,
                 });
             });
-        // return () => {
-        //     // Unmount
-        //     socket.current.disconnect();
-        // };
     }, [currentSocket]);
 
     async function handleSubmit(e) {
@@ -59,18 +85,32 @@ export default function MessageSection({ groupId, currentSocket }) {
         setLastMessage(messageBuilder);
     }
 
+    function setScrollPos() {
+        const that = messageSection.current;
+        that.scrollTo({ top: that.scrollHeight });
+    }
+
     useEffect(() => {
         arrivalMessage && setConversations((prev) => [...prev, arrivalMessage]);
     }, [arrivalMessage]);
 
-    function tetik() {
-        console.log("tetik");
+    async function onPageChange() {
+        if (groupId && scrollable) {
+            const payload = { groupId: groupId, pageNumber: pageNumber, nPerPage: 30 };
+            const [getMessagesData, error] = await getMessagesPagination(payload);
+            if (!error && getMessagesData.length && pageNumber > 1) {
+                setConversations((prev) => [...getMessagesData.reverse(), ...prev]);
+                console.log(getMessagesData);
+            } else {
+                setScrollable(false);
+            }
+        }
     }
 
     return (
         <>
             <Title></Title>
-            <div className="message-section" id="deneme">
+            <div className="message-section" ref={messageSection}>
                 {/* iterate this two element  */}
                 {conversations.map((val, id) => {
                     const { sender, message } = val;

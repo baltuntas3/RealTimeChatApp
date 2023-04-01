@@ -2,6 +2,7 @@
     display: flex;
     max-width: 1440px;
     width: 95vw;
+    height: 90vh;
     justify-content: center;
     border: 1px solid black;
 }
@@ -10,8 +11,11 @@
     border: 1px solid black;
 }
 .right-side {
+    display: flex;
     flex: 70%;
     border: 1px solid black;
+    flex-direction: column;
+    justify-content: space-between;
 }
 .profile {
     display: flex;
@@ -61,6 +65,8 @@
     display: flex;
     flex-direction: column;
     border: 1px solid black;
+    overflow-y: initial;
+    overflow: auto;
 }
 .group-container {
     display: flex;
