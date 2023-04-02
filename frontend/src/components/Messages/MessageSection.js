@@ -122,9 +122,9 @@ export default function MessageSection({ groupId, currentSocket }) {
             </div>
             <div className="message-bottom">
                 <div className="message-text">
-                    <Input className="message-input" onChange={setNewMessage}></Input>
+                    <Input className="message-input" placeholder="Bir mesaj yazın..." onChange={setNewMessage}></Input>
                 </div>
-                <button className="message-send-button" onClick={handleSubmit}>
+                <button className="message-send-button input-button-style" onClick={handleSubmit}>
                     Gönder
                 </button>
             </div>
