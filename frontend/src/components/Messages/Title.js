@@ -5,10 +5,10 @@ export default function Title() {
     // const { groupName, participants } = selectedGroup;
     return (
         <div className="title-container">
-            <div className="profile-photo"></div>
+            <div className="profile-photo">profil fotoğrafı</div>
             <div className="group-description">
                 <div className="group-title">{selectedGroup && selectedGroup.groupName}</div>
-                <div className="group-users">
+                <div className="group-last-message">
                     {selectedGroup &&
                         selectedGroup.participants.map(({ userName }, id) => (
                             <span key={id}>

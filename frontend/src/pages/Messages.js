@@ -14,7 +14,6 @@ export default function MessagesPage() {
     const socket = useRef();
     const [currentGroupId, setCurrentGroupId] = useState(undefined);
     const [messages, setMessages] = useState([]);
-
     // const [conversations, setConversations] = useState([]);
 
     const { user } = useUser();
@@ -71,13 +70,11 @@ export default function MessagesPage() {
                             return (
                                 <>
                                     <button
-                                        className="group-btn input-button-style"
                                         key={id}
                                         onClick={() => {
                                             // setCurrentChat((prev) => {
                                             //     if (prev) socket.current.emit("leaveGroup", prev._id);
                                             // });
-
                                             setCurrentGroupId(val._id);
                                             setSelectedGroup({
                                                 groupName: val.groupName,

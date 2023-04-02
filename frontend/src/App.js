@@ -1,6 +1,7 @@
 import LogIn from "./pages/LogIn";
 import { Route, Routes, Link, NavLink } from "react-router-dom";
 import Messages from "./pages/Messages";
+import Chats from "./pages/Chats";
 import { useUser } from "./context/userContext";
 import { useAlert } from "./context/errorMessageContext";
 import { logout } from "./services/api";
@@ -26,23 +27,17 @@ function App() {
         <div className="wrapper">
             <nav>
                 {/* <Link to="/">Home</Link> */}
-                <Link to="/" className="link-element">
-                    Register
-                </Link>
+                <Link to="/">Register</Link>
 
                 {user ? (
                     <>
-                        <Link to="/messages" className="link-element">
-                            Messages
-                        </Link>
-                        <Link to="/" className="link-element" onClick={logoutHandler}>
+                        <Link to="/messages">Messages</Link>
+                        <Link to="/" onClick={logoutHandler}>
                             Logout
                         </Link>
                     </>
                 ) : (
-                    <Link to="/login" className="link-element">
-                        Login
-                    </Link>
+                    <Link to="/login">Login</Link>
                 )}
             </nav>
             <Routes>
@@ -56,6 +51,7 @@ function App() {
                     }
                 />
                 <Route path="/login" element={<LogIn />} />
+                <Route path="/chats" element={<Chats />} />
                 <Route path="/register" element={<Register />} />
             </Routes>
         </div>
