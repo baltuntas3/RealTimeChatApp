@@ -30,8 +30,8 @@ export default function Groups({ groups, id }) {
     }
 
     return (
-        <div className="group-container">
-            <div className="profile-photo">asd</div>
+        <div className="group-container" tabIndex={id}>
+            <div className="profile-photo"></div>
             <div className="group-description">
                 <div className="group-title">
                     {groupName}

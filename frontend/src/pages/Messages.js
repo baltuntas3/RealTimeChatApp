@@ -71,6 +71,7 @@ export default function MessagesPage() {
                                 <>
                                     <button
                                         key={id}
+                                        className="group-btn input-button-style"
                                         onClick={() => {
                                             // setCurrentChat((prev) => {
                                             //     if (prev) socket.current.emit("leaveGroup", prev._id);

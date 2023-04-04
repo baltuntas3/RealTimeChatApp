@@ -4,34 +4,40 @@
     width: 95vw;
     height: 90vh;
     justify-content: center;
-    border: 1px solid black;
+    background-color: var(--layout-color);
+    border-radius: 3px;
+    box-shadow: 0 17px 50px 0 rgba(11, 20, 26, 0.19), 0 12px 15px 0 rgba(11, 20, 26, 0.24);
 }
 .left-side {
     flex: 30%;
-    border: 1px solid black;
+    background-color: #111b21;
 }
 .right-side {
     display: flex;
     flex: 70%;
-    border: 1px solid black;
+
     flex-direction: column;
     justify-content: space-between;
 }
 .profile {
     display: flex;
     justify-content: space-between;
-    border: 1px solid black;
+    background-color: var(--panel-header-background);
 }
 .profile-photo {
     margin: 5px;
     border-radius: 50%;
     width: 49px;
     height: 49px;
-    border: 1px solid black;
+    border: 1px solid white;
 }
 .profile-menu {
     display: flex;
-    border: 1px solid red;
+}
+.group-users {
+    text-align: left;
+    font-size: 13px;
+    color: var(--secondary);
 }
 .group-description {
     display: flex;
@@ -41,84 +47,140 @@
     justify-content: center;
     min-width: 0;
     padding-right: 15px;
-    border: 1px solid black;
 }
 .group-title {
     display: flex;
     justify-content: space-between;
-    border: 1px solid black;
+    font-size: 17px;
 }
 .group-check {
     display: inline-block;
     padding: 2px;
 }
 .group-last-message {
-    border: 1px solid black;
+    text-align: left;
+    color: var(--secondary);
+    font-size: 14px;
 }
 .new-message {
-    border: 1px solid black;
 }
 .search {
-    border: 1px solid black;
 }
 .groups {
     display: flex;
     flex-direction: column;
-    border: 1px solid black;
     overflow-y: initial;
     overflow: auto;
 }
 .group-container {
     display: flex;
+    background-color: var(--theme-bg-color);
 }
 .right-side {
-    border: 1px solid black;
+    max-width: 70%;
+}
+.group-container:hover {
+    background-color: var(--hover-background);
+}
+.group-container:focus {
+    background-color: var(--hover-background);
+}
+.group-bg {
+    background-color: var(--hover-background);
+}
+.link-element {
+    color: white;
+    text-decoration: none;
+    padding: 5px;
+}
+.input-button-style {
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+}
+.group-btn {
+    border-bottom: 1px solid rgba(134, 150, 160, 0.15);
 }
 .message-section {
     height: 80vh;
     overflow: auto;
     overflow-y: initial;
+    background-image: url("../assets/blue-pink-10-pct.png");
+    object-fit: cover;
     /* height: 600px; scroll scroloğlunu ayarla */
-    /* border: 1px solid black; */
+    /*  */
+}
+.message-section::-webkit-scrollbar {
+    background-color: transparent;
+
+    width: 6px !important;
+    height: 6px !important;
+
+    /* border: none; */
+}
+
+.message-section::-webkit-scrollbar-thumb {
+    background-color: rgba(59, 74, 84, 0.2);
+}
+.message-section::-webkit-scrollbar-track-piece {
+    background-color: transparent;
 }
 .message {
     white-space: pre-wrap;
-    /* border: 1px solid black; */
+    /*  */
 }
 .message-content {
     width: 80%;
     border-radius: 6px;
     word-wrap: break-word;
+    box-sizing: border-box;
+    padding: 0.5rem 1rem;
+    margin: 1rem;
+    background: white;
+    min-height: 2.25rem;
+    width: fit-content;
+    max-width: 66%;
+    box-shadow: 0 0 2rem rgba(black, 0.075), 0rem 1rem 1rem -1rem rgba(black, 0.1);
 }
 .sender {
-    background-color: bisque;
+    background-color: var(--theme-sender-bg-color);
+    border-radius: 1.125rem 1.125rem 0 1.125rem;
 
     text-align: right;
+    color: white;
     margin-right: 0;
     margin-left: auto;
 }
 .receiver {
-    background-color: aquamarine;
+    border-radius: 1.125rem 1.125rem 1.125rem 0;
+    color: white;
+    background-color: var(--theme-receiver-bg-color);
 }
 .message-bottom {
     display: flex;
     justify-content: space-between;
     /* flex-grow: 1; */
-    border: 1px solid black;
 }
 .message-text {
     width: 90%;
     padding: 5px;
     border-radius: 5px;
-    border: 1px solid black;
 }
 .message-send-button {
     width: 10%;
-    border: 1px solid black;
 }
 
 .message-input {
-    width: calc(100% - 10px);
+    width: calc(100% - 20px);
+    padding: 9px 12px;
+    margin: 5px 10px;
+    background-color: var(--message-input-background);
+    border: 1px solid #2a3942;
+    border-radius: 8px;
 }
 
 .title-container {
