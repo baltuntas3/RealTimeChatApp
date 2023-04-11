@@ -6,7 +6,7 @@ class UserService extends BaseService {
     model = UserModel;
 
     async signIn(userInformation) {
-        console.log(userInformation);
+        // console.log(userInformation);
 
         const hashedPassword = await bcrypt.hash(userInformation.password, 10);
         // const pass= await bcrypt.compare(userInformation.password,hashedPassword)

@@ -79,6 +79,4 @@ server.listen(3005, () => {
     console.log("listening on *:3005");
 });
 
-app.listen(5000, () => {
-    console.log("Server is listening...");
-});
+module.exports = app;

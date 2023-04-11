@@ -4,9 +4,11 @@
     "description": "Realtime chat application",
     "main": "Index.js",
     "scripts": {
-        "start": "nodemon Index.js",
+        "start": "node .bin/www",
+        "watch": "nodemon --ignore '*.json' .bin/www",
         "debug": "node Index.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "jest --coverage --verbose",
+        "test-watch": "jest --coverage --verbose --watch"
     },
     "repository": {
         "type": "git",
@@ -29,5 +31,9 @@
         "mongoose-autopopulate": "^0.16.1",
         "nodemon": "^2.0.19",
         "socket.io": "^4.5.1"
+    },
+    "devDependencies": {
+        "jest": "^29.5.0",
+        "supertest": "^6.3.3"
     }
 }
