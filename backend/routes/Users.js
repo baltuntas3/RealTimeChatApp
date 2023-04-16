@@ -35,8 +35,8 @@ router.post("/login", async (req, res) => {
                 const accessToken = jwtHelper.generateJwtToken({ username: user.userName, id: user._id });
                 const refreshToken = jwtHelper.generateRefreshJwtToken({ username: user.userName, id: user._id });
                 req.user = user;
-                res.cookie("token", accessToken, { httpOnly: true });
-                res.cookie("refreshToken", refreshToken, { httpOnly: true });
+                res.cookie("token", accessToken, { httpOnly: true, secure: true, sameSite: "none" });
+                res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none" });
                 return res.status(200).send({ accessToken, refreshToken });
             } else {
                 return res.status(401).send(errorMessage("Bilgiler yanlış.."));

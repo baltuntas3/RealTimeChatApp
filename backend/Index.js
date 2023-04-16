@@ -16,7 +16,7 @@ const io = new Server(server, {
 });
 
 app.use(cookieParser());
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(cors({ credentials: true, origin: "https://frontend-iweogtomcq-ew.a.run.app" }));
 app.use(express.json());
 
 //socket.io implementation begin
