@@ -34,8 +34,8 @@ export default function MessageSection({ groupId, currentSocket }) {
     }, []);
 
     useEffect(() => {
-        messageSection.current.addEventListener("scroll", scrollEvent);
         if (!scrollable) messageSection.current.removeEventListener("scroll", scrollEvent);
+        else messageSection.current.addEventListener("scroll", scrollEvent);
     }, [scrollable]);
 
     useEffect(() => {

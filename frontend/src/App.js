@@ -7,6 +7,7 @@ import { logout } from "./services/api";
 import Register from "./pages/Register";
 import "./index.css";
 import MessageContextProvider from "./context/messageContext";
+import ProfilePage from "./pages/Profile";
 
 function App() {
     //user için cookie kontrölü yap
@@ -35,6 +36,9 @@ function App() {
                         <Link to="/messages" className="link-element">
                             Messages
                         </Link>
+                        <Link to="/profile" className="link-element">
+                            Profile
+                        </Link>
                         <Link to="/" className="link-element" onClick={logoutHandler}>
                             Logout
                         </Link>
@@ -56,6 +60,8 @@ function App() {
                     }
                 />
                 <Route path="/login" element={<LogIn />} />
+                <Route path="/profile" element={<ProfilePage />} />
+
                 <Route path="/register" element={<Register />} />
             </Routes>
         </div>

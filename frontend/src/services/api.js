@@ -1,5 +1,7 @@
 import axios from "axios";
-axios.defaults.baseURL = "http://localhost:5000/";
+// require("dotenv").config();
+
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
 // import { alertMessage, setAlertMessage } from "../context/errorMessageContext";
 
@@ -18,10 +20,14 @@ async function handleRequest(url, payload = undefined) {
 }
 
 async function logIn(login) {
-    const [data, error] = await handleRequest("users/login", {
-        username: login.username,
-        password: login.password,
-    });
+    const [data, error] = await handleRequest(
+        "users/login",
+        {
+            username: login.username,
+            password: login.password,
+        },
+        { withCredentials: true }
+    );
     if (error) return [undefined, error];
     // console.log("hata hataoğlu");
 

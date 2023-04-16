@@ -1,3 +1,12 @@
+import { useUser } from "../context/userContext";
+
 export default function ProfilePage() {
-    return <div>Profile</div>;
+    const { user } = useUser();
+    console.log(user);
+    return (
+        <div>
+            Profile
+            {user.id}
+        </div>
+    );
 }
