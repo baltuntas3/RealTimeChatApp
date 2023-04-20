@@ -1,16 +1,15 @@
 import { useState, useRef, useEffect } from "react";
 // import { useNavigate } from "react-router-dom";
 // import jwt_decode from "jwt-decode";
-
 import Input from "../components/Input";
-import Alert from "../components/Alert";
 // import { logIn } from "../services/api";
+import { useAlert } from "../context/errorMessageContext";
 import { useUser } from "../context/userContext";
 
 export default function LogIn() {
-    const { fetchCurrentUser } = useUser();
-    const [error, setError] = useState();
+    const { alertMessage, setAlertMessage } = useAlert();
 
+    const { fetchCurrentUser } = useUser();
     const usernameRef = useRef(null);
     const passwordRef = useRef(null);
     const submitRef = useRef(null);
@@ -21,7 +20,8 @@ export default function LogIn() {
     });
 
     async function handleSubmit(e) {
-        await fetchCurrentUser(values);
+        const err = await fetchCurrentUser(values);
+        setAlertMessage(err?.message);
     }
 
     function formChangeHandler(e) {
@@ -45,7 +45,6 @@ export default function LogIn() {
     return (
         <div className="app">
             <h1>Login</h1>
-            {error && <Alert message={error.message} />}
             <Input
                 name="username"
                 value={values.username}

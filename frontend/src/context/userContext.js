@@ -10,7 +10,8 @@ const UserContextProvider = ({ children }) => {
 
     // const [user, setUser] = useState();
     const [user, setUser] = useState(() => {
-        let userProfle = localStorage.getItem("userProfile");
+        const [key, value] = document.cookie.split("=");
+        let userProfle = value;
         if (userProfle) {
             return jwtDecode(userProfle);
         }
@@ -19,14 +20,11 @@ const UserContextProvider = ({ children }) => {
     // const [isSocketActive, setIsSocketActive] = useState(false);
 
     const fetchCurrentUser = async (payload) => {
-        const [data, err] = await logIn(payload);
-        if (data) {
-            localStorage.setItem("userProfile", data.data.accessToken);
-            setUser(jwtDecode(data.data.accessToken));
-            navigate("/chats");
-        } else {
-            console.log(err);
-        }
+        const [data, error] = await logIn(payload);
+        if (error) return error;
+        document.cookie = `accessToken=${data.accessToken}; SameSite=None; Secure;`;
+        setUser(jwtDecode(data.accessToken));
+        navigate("/chats");
     };
 
     // useEffect(() => {

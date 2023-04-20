@@ -1,9 +1,9 @@
 import axios from "axios";
+// import { useAlert } from "../context/errorMessageContext";
 // require("dotenv").config();
-
+// process.env.REACT_APP_BASE_URL ||
 axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
-// import { alertMessage, setAlertMessage } from "../context/errorMessageContext";
 
 async function handleRequest(url, payload = undefined) {
     try {
@@ -13,78 +13,60 @@ async function handleRequest(url, payload = undefined) {
         } else {
             data = await axios.get(url);
         }
-        return [data, undefined];
+
+        return [data.data, undefined];
     } catch (err) {
         return [undefined, err];
     }
 }
 
 async function logIn(login) {
-    const [data, error] = await handleRequest(
-        "users/login",
-        {
-            username: login.username,
-            password: login.password,
-        },
-        { withCredentials: true }
-    );
-    if (error) return [undefined, error];
-    // console.log("hata hataoğlu");
-
-    return [data, undefined];
+    return await handleRequest("users/login", {
+        username: login.username,
+        password: login.password,
+    });
 }
+function deleteAllCookies() {
+    const cookies = document.cookie.split(";");
 
-async function logout() {
-    try {
-        const isLogout = await axios.get("users/logout");
-        return isLogout.data;
-    } catch (error) {
-        return { error: error.response.data, status: error.response.status };
+    for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i];
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+        document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
+}
+async function logout() {
+    deleteAllCookies();
+    return await handleRequest("users/logout");
+
+    // } catch (error) {
+    //      return { error: error.response.data, status: error.response.status };
+    // }
 }
 
 async function getInbox() {
-    const [getInbox, error] = await handleRequest("messages/inbox");
-
-    if (error) return [undefined, error];
-    return [getInbox.data, undefined];
+    return await handleRequest("messages/inbox");
 }
 
 async function getMessagesByGroupId(groupId) {
-    const [getAllMessages, error] = await handleRequest("messages/group-messages/" + groupId);
-    if (error) return [undefined, error];
-
-    return [getAllMessages.data, undefined];
+    return await handleRequest("messages/group-messages/" + groupId);
 }
 
 async function register(registerForm) {
-    try {
-        const { data } = await axios.post("users/sign-in", { ...registerForm, age: 20 });
-        return data;
-    } catch (error) {
-        return { error: error.response.data, status: error.response.status };
-    }
+    return await handleRequest("users/sign-in", { ...registerForm, age: 20 });
 }
 
 async function getLastMessageInGroup(groupId) {
-    const [getLastMessage, error] = await handleRequest("messages/get-last-message/" + groupId);
-    if (error) return [undefined, error];
-
-    return [getLastMessage.data, undefined];
+    return await handleRequest("messages/get-last-message/" + groupId);
 }
 
 async function sendMessage(messageBuilder) {
-    const [message, error] = await handleRequest("messages/send", messageBuilder);
-    if (error) return [undefined, error];
-
-    return [message.data, undefined];
+    return await handleRequest("messages/send", messageBuilder);
 }
 // /group-messages-pagination
 async function getMessagesPagination(payload) {
-    const [getMessagesPagination, error] = await handleRequest("messages/group-messages-pagination", payload);
-    if (error) return [undefined, error];
-
-    return [getMessagesPagination.data, undefined];
+    return await handleRequest("messages/group-messages-pagination", payload);
 }
 
 export {

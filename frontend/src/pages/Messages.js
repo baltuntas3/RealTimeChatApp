@@ -4,6 +4,7 @@ import io from "socket.io-client";
 import "../styles/Messages.css";
 import { useUser } from "../context/userContext";
 import { useMessage } from "../context/messageContext";
+import { useAlert } from "../context/errorMessageContext";
 
 import Groups from "../components/Messages/Groups";
 import MessageSection from "../components/Messages/MessageSection";
@@ -14,6 +15,7 @@ export default function MessagesPage() {
     const socket = useRef();
     const [currentGroupId, setCurrentGroupId] = useState(undefined);
     const [messages, setMessages] = useState([]);
+    const { alertMessage, setAlertMessage } = useAlert();
     // const [conversations, setConversations] = useState([]);
 
     const { user } = useUser();
@@ -23,13 +25,13 @@ export default function MessagesPage() {
     async function getUserInbox() {
         const [getData, error] = await getInbox();
         console.log(getData, " bakalım");
-        if (!error) {
-            getData.map(({ _id }) => {
-                socket.current.emit("joinGroup", _id);
-            });
 
-            setMessages(getData);
-        }
+        if (error) return setAlertMessage("hata");
+        getData.map(({ _id }) => {
+            return socket.current.emit("joinGroup", _id);
+        });
+
+        setMessages(getData);
     }
 
     useEffect(() => {
