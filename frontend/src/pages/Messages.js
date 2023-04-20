@@ -40,7 +40,7 @@ export default function MessagesPage() {
 
     useEffect(() => {
         // backend-iweogtomcq-ew.a.run.app
-        socket.current = io("ws://localhost:3005");
+        socket.current = io("ws://backend-iweogtomcq-ew.a.run.app:3005");
 
         socket.current.on("getGroupMessage", (obj) => {
             console.log("*********************", obj, "  last");
