@@ -2,7 +2,7 @@ import axios from "axios";
 // import { useAlert } from "../context/errorMessageContext";
 // require("dotenv").config();
 // process.env.REACT_APP_BASE_URL ||
-axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+axios.defaults.baseURL = "http://localhost:5000";
 axios.defaults.withCredentials = true;
 
 async function handleRequest(url, payload = undefined) {
