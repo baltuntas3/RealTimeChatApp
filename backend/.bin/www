@@ -1,7 +1,15 @@
 const app = require("../");
+const websocketServer = require("../websocket/websocket");
 
 const port = process.env.PORT || 5000;
-
+// Express
 app.listen(port, () => {
     console.log(`Started listening on ${port}`);
 });
+// Websocket
+websocketServer.listen(3005, () => {
+    console.log("listening on *:3005");
+});
+
+// Redis
+// redisServer.

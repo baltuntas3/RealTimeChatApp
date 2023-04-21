@@ -4,6 +4,8 @@ const { UserService } = require("../services/AllServices");
 const jwtHelper = require("../helpers/JwtHelper");
 const errorMessage = require("../helpers/ErrorHandling");
 const successMessage = require("../helpers/SuccessMessageBuilder");
+const { getValueRedis, setValueRedis } = require("../configs/RedisConnection");
+require("dotenv").config();
 
 router.get("/logout", (req, res) => {
     res.clearCookie("token");
@@ -26,6 +28,9 @@ router.post("/sign-in", async (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
+        const bak = getValueRedis("some");
+        console.log(bak);
+        const { COOKIE_EXPIRE_TIME } = process.env;
         const userInformation = { username: req.body.username, password: req.body.password };
         const user = await UserService.findByUserName(userInformation.username);
 
@@ -35,9 +40,21 @@ router.post("/login", async (req, res) => {
                 const accessToken = jwtHelper.generateJwtToken({ username: user.userName, id: user._id });
                 const refreshToken = jwtHelper.generateRefreshJwtToken({ username: user.userName, id: user._id });
                 req.user = user;
-                res.cookie("token", accessToken, { httpOnly: true, secure: true, sameSite: "none" });
-                res.cookie("refreshToken", refreshToken, { httpOnly: true, secure: true, sameSite: "none" });
-                return res.status(200).send({ accessToken, refreshToken });
+                res.cookie("token", accessToken, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: "none",
+                    maxAge: parseInt(COOKIE_EXPIRE_TIME),
+                });
+                // TODO: use redis to store refresh token
+
+                // res.cookie("refreshToken", refreshToken, {
+                //     httpOnly: true,
+                //     secure: true,
+                //     sameSite: "none",
+                //     expires: COOKIE_EXPIRE_TIME,
+                // });
+                return res.status(200).send({ accessToken });
             } else {
                 return res.status(401).send(errorMessage("Bilgiler yanlış.."));
             }

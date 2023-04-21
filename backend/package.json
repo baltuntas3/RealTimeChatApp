@@ -4,7 +4,7 @@
     "description": "Realtime chat application",
     "main": "Index.js",
     "scripts": {
-        "start": "node .bin/www",
+        "start": "nodemon .bin/www",
         "watch": "nodemon --ignore '*.json' .bin/www",
         "debug": "node Index.js",
         "test": "env-cmd -f test.env jest --coverage --verbose",
@@ -31,6 +31,7 @@
         "mongoose": "^6.5.0",
         "mongoose-autopopulate": "^0.16.1",
         "nodemon": "^2.0.19",
+        "redis": "^4.6.5",
         "socket.io": "^4.5.1"
     },
     "devDependencies": {
