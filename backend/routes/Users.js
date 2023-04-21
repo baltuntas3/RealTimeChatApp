@@ -28,8 +28,6 @@ router.post("/sign-in", async (req, res) => {
 
 router.post("/login", async (req, res) => {
     try {
-        const bak = getValueRedis("some");
-        console.log(bak);
         const { COOKIE_EXPIRE_TIME } = process.env;
         const userInformation = { username: req.body.username, password: req.body.password };
         const user = await UserService.findByUserName(userInformation.username);
@@ -47,6 +45,7 @@ router.post("/login", async (req, res) => {
                     maxAge: parseInt(COOKIE_EXPIRE_TIME),
                 });
                 // TODO: use redis to store refresh token
+                await setValueRedis(accessToken, refreshToken);
 
                 // res.cookie("refreshToken", refreshToken, {
                 //     httpOnly: true,
@@ -54,6 +53,7 @@ router.post("/login", async (req, res) => {
                 //     sameSite: "none",
                 //     expires: COOKIE_EXPIRE_TIME,
                 // });
+
                 return res.status(200).send({ accessToken });
             } else {
                 return res.status(401).send(errorMessage("Bilgiler yanlış.."));

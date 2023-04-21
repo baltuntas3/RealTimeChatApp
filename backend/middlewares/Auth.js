@@ -3,6 +3,10 @@ const errorMessage = require("../helpers/ErrorHandling");
 require("dotenv").config();
 const { ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME, COOKIE_EXPIRE_TIME } = process.env;
 
+async function getAccessToken(token) {
+    return await getValueRedis(token);
+}
+
 const verifyToken = (req, res, next) => {
     try {
         const token = (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.token;
@@ -14,9 +18,9 @@ const verifyToken = (req, res, next) => {
         return next();
     } catch (err) {
         if (err.name === "TokenExpiredError") {
-            const refreshToken =
-                (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) ||
-                req.cookies.refreshToken;
+            const token =
+                (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.accessToken;
+            const refreshToken = getAccessToken(token);
             if (!refreshToken) return res.status(401).send(errorMessage("Invalid Token: " + err.message));
             const refreshUser = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET_KEY);
             const newAccessToken = jwt.sign({ username: refreshUser.username, id: refreshUser.id }, ACCESS_SECRET_KEY, {
@@ -24,6 +28,7 @@ const verifyToken = (req, res, next) => {
             });
             req.user = refreshUser;
             // res.clearCookie("token");
+
             res.cookie("token", newAccessToken, {
                 httpOnly: true,
                 secure: true,
