@@ -26,6 +26,7 @@ async function logIn(login) {
         password: login.password,
     });
 }
+
 function deleteAllCookies() {
     const cookies = document.cookie.split(";");
 
@@ -36,13 +37,10 @@ function deleteAllCookies() {
         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
     }
 }
+
 async function logout() {
     deleteAllCookies();
     return await handleRequest("users/logout");
-
-    // } catch (error) {
-    //      return { error: error.response.data, status: error.response.status };
-    // }
 }
 
 async function getInbox() {
@@ -68,7 +66,9 @@ async function sendMessage(messageBuilder) {
 async function getMessagesPagination(payload) {
     return await handleRequest("messages/group-messages-pagination", payload);
 }
-
+async function getUserInfo() {
+    return await handleRequest("users/get-user-info");
+}
 export {
     register,
     getInbox,
@@ -78,4 +78,5 @@ export {
     getLastMessageInGroup,
     sendMessage,
     getMessagesPagination,
+    getUserInfo,
 };

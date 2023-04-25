@@ -19,10 +19,6 @@ function App() {
         setUser(null);
     };
 
-    // useEffect(() => {
-    //     console.log("en iç ilk");
-    // }, []);
-
     return (
         <div className="wrapper">
             <nav>

@@ -55,12 +55,12 @@ export default function MessagesPage() {
     }, []);
 
     useEffect(() => {
-        socket.current.emit("addUser", user.id);
+        socket.current.emit("addUser", user?.id);
         socket.current.on("getUsers", (users) => {
             // you can catch the online users.
             console.log(users, "*0");
         });
-    }, [user.id]);
+    }, [user?.id]);
 
     return (
         <div className="container">
