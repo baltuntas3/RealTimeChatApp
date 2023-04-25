@@ -4,7 +4,8 @@ const { UserService } = require("../services/AllServices");
 const jwtHelper = require("../helpers/JwtHelper");
 const errorMessage = require("../helpers/ErrorHandling");
 const successMessage = require("../helpers/SuccessMessageBuilder");
-const { getValueRedis, setValueRedis } = require("../configs/RedisConnection");
+const { setValueRedis } = require("../configs/RedisConnection");
+const verifyToken = require("../middlewares/Auth");
 require("dotenv").config();
 
 router.get("/logout", (req, res) => {
@@ -42,17 +43,10 @@ router.post("/login", async (req, res) => {
                     httpOnly: true,
                     secure: true,
                     sameSite: "none",
-                    maxAge: parseInt(COOKIE_EXPIRE_TIME),
+                    // maxAge: COOKIE_EXPIRE_TIME,
                 });
                 // TODO: use redis to store refresh token
                 await setValueRedis(accessToken, refreshToken);
-
-                // res.cookie("refreshToken", refreshToken, {
-                //     httpOnly: true,
-                //     secure: true,
-                //     sameSite: "none",
-                //     expires: COOKIE_EXPIRE_TIME,
-                // });
 
                 return res.status(200).send({ accessToken });
             } else {
@@ -65,58 +59,11 @@ router.post("/login", async (req, res) => {
     }
 });
 
-// router.get("/send-request/:userId", verifyToken, async (req, res) => {
-//     const { id } = req.user;
-//     const { userId } = req.params;
-//     const checkRequest = await NotificationService.queryOne({
-//         fromUser: id,
-//         toUser: userId,
-//     });
+router.get("/get-user-info", verifyToken, (req, res) => {
+    // const { id } = req.params;
+    // const user = await UserService.find(id);
+    console.log(req.user);
+    req.user ? res.send(req.user) : res.send("I am a teapot!");
+});
 
-//     if (id !== userId && !checkRequest) {
-//         const userToSend = await UserService.find(userId);
-//         console.log(userToSend);
-//         if (userToSend && !userToSend.friends.includes(id)) {
-//             //gönderilecek adam varsa ve arkadaşım değilse
-//             const addRequest = await NotificationService.sendFriendRequest(id, userId);
-//             console.log(addRequest);
-//             return res.send(addRequest);
-//         }
-//     }
-
-//     res.send(errorMessage("Hata."));
-// });
-
-// router.get("/denem", verifyToken, async (req, res) => {
-
-//     res.send(errorMessage("Hata."));
-// });
-
-//Gelen kutusu yap istekleri çek onaylarsa ekle
-// const userLoggedIn = await UserService.find(id)
-// userLoggedIn.friends.push(userToSend._id)
-
-// const jwt = require("jsonwebtoken");
-// require("dotenv").config();
-
-// const { ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME } = process.env;
-
-// router.get("/refresh-verify-token", async (req, res, next) => {
-//     try {
-//         const authHeader = req.headers["authorization"];
-//         const refreshToken = (authHeader && authHeader.split(" ")[1]) || req.cookies.refreshToken;
-//         if (refreshToken) {
-//             const refreshUser = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET_KEY);
-//             const newAccessToken = jwt.sign({ username: refreshUser.username, id: refreshUser.id }, ACCESS_SECRET_KEY, {
-//                 expiresIn: `${TOKEN_EXPIRE_TIME}`,
-//             });
-
-//             res.cookie("token", newAccessToken, { httpOnly: true });
-//             req.user = jwt.verify(newAccessToken, ACCESS_SECRET_KEY);
-//             return res.status(200).send(errorMessage("Invalid Token: "));
-//         }
-//     } catch (err) {
-//         return res.status(401).send(errorMessage("Invalid Token: " + err.message));
-//     }
-// });
 module.exports = router;
