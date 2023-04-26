@@ -46,7 +46,9 @@ router.post("/login", async (req, res) => {
                     // maxAge: COOKIE_EXPIRE_TIME,
                 });
                 // TODO: use redis to store refresh token
-                await setValueRedis(accessToken, refreshToken);
+                console.log(typeof req.user.id, req.user);
+                await setValueRedis(req.user.id, refreshToken);
+                console.log(req.user.id, "**");
 
                 return res.status(200).send({ accessToken });
             } else {
@@ -62,7 +64,6 @@ router.post("/login", async (req, res) => {
 router.get("/get-user-info", verifyToken, (req, res) => {
     // const { id } = req.params;
     // const user = await UserService.find(id);
-    console.log(req.user);
     req.user ? res.send(req.user) : res.send("I am a teapot!");
 });
 

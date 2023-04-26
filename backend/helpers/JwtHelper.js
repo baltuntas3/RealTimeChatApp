@@ -34,7 +34,6 @@ class JwtHelper {
     }
 
     getPayload(token) {
-        console.log(jwt.verify(token), "token-->", token);
         return jwt.verify(token, this.secret);
     }
 }
