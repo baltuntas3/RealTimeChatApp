@@ -8,7 +8,13 @@ import Register from "./pages/Register";
 import "./index.css";
 import MessageContextProvider from "./context/messageContext";
 import ProfilePage from "./pages/Profile";
+/*
 
+Grup mesajlarında isimleri yaz. 
+2 kişiden fazlaysa grup resmi koy. V
+2 kişilikse grup grup başlığı mesaj gönderilen kişi olsun. Renklerde olsun. V
+
+*/
 function App() {
     //user için cookie kontrölü yap
     const { user, setUser } = useUser();
@@ -16,18 +22,15 @@ function App() {
 
     const logoutHandler = () => {
         logout();
-        setUser(null);
+        setUser({});
     };
 
     return (
         <div className="wrapper">
             <nav>
                 {/* <Link to="/">Home</Link> */}
-                <Link to="/" className="link-element">
-                    Register
-                </Link>
 
-                {user ? (
+                {Object?.keys(user).length !== 0 ? (
                     <>
                         <Link to="/messages" className="link-element">
                             Messages
@@ -40,9 +43,14 @@ function App() {
                         </Link>
                     </>
                 ) : (
-                    <Link to="/login" className="link-element">
-                        Login
-                    </Link>
+                    <>
+                        <Link to="/login" className="link-element">
+                            Login
+                        </Link>
+                        <Link to="/" className="link-element">
+                            Register
+                        </Link>
+                    </>
                 )}
             </nav>
             <Routes>

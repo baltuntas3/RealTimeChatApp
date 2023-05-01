@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // import jwt_decode from "jwt-decode";
 import Input from "../components/Input";
 // import { logIn } from "../services/api";
@@ -7,9 +7,10 @@ import { useAlert } from "../context/errorMessageContext";
 import { useUser } from "../context/userContext";
 
 export default function LogIn() {
+    const navigate = useNavigate();
     const { alertMessage, setAlertMessage } = useAlert();
 
-    const { fetchCurrentUser } = useUser();
+    const { fetchCurrentUser, user } = useUser();
     const usernameRef = useRef(null);
     const passwordRef = useRef(null);
     const submitRef = useRef(null);
@@ -34,9 +35,9 @@ export default function LogIn() {
         }
     };
 
-    // useEffect(() => {
-    //     console.log(user, "-**-*-*-*-");
-    // }, [user]);
+    useEffect(() => {
+        if (Object.keys(user).length !== 0) navigate("/profile");
+    }, []);
 
     useEffect(() => {
         usernameRef.current.focus();

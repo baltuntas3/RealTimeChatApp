@@ -21,12 +21,13 @@
 body {
     background-color: var(--theme-bg-color);
     color: var(--theme-text-color);
+    font-family: Segoe UI, Helvetica Neue, Helvetica, Lucida Grande, Arial, Ubuntu, Cantarell, Fira Sans, sans-serif;
 }
 
 .wrapper {
     display: flex;
-    /* width: 100vw; */
     flex-direction: column;
     align-items: center;
     padding: 2rem;
+    gap: 20px;
 }

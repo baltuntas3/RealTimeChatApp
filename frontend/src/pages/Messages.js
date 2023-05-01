@@ -5,7 +5,6 @@ import "../styles/Messages.css";
 import { useUser } from "../context/userContext";
 import { useMessage } from "../context/messageContext";
 import { useAlert } from "../context/errorMessageContext";
-
 import Groups from "../components/Messages/Groups";
 import MessageSection from "../components/Messages/MessageSection";
 import Profile from "../components/Messages/Profile";
@@ -24,7 +23,6 @@ export default function MessagesPage() {
     // getUser()
     async function getUserInbox() {
         const [getData, error] = await getInbox();
-        console.log(getData, " bakalım");
 
         if (error) return setAlertMessage("hata");
         getData.map(({ _id }) => {
@@ -43,9 +41,8 @@ export default function MessagesPage() {
         socket.current = io("ws://localhost:3005");
 
         socket.current.on("getGroupMessage", (obj) => {
-            console.log("*********************", obj, "  last");
-            setLastMessage(obj);
             // set last message
+            setLastMessage(obj);
         });
 
         return () => {
@@ -58,7 +55,6 @@ export default function MessagesPage() {
         socket.current.emit("addUser", user?.id);
         socket.current.on("getUsers", (users) => {
             // you can catch the online users.
-            console.log(users, "*0");
         });
     }, [user?.id]);
 
@@ -71,24 +67,22 @@ export default function MessagesPage() {
                     {messages &&
                         messages.map((val, id) => {
                             return (
-                                <>
-                                    <button
-                                        key={id}
-                                        className="group-btn input-button-style"
-                                        onClick={() => {
-                                            // setCurrentChat((prev) => {
-                                            //     if (prev) socket.current.emit("leaveGroup", prev._id);
-                                            // });
-                                            setCurrentGroupId(val._id);
-                                            setSelectedGroup({
-                                                groupName: val.groupName,
-                                                participants: val.participants,
-                                            });
-                                        }}
-                                    >
-                                        <Groups key={id} id={val._id} groups={val}></Groups>
-                                    </button>
-                                </>
+                                <button
+                                    key={id}
+                                    className="group-btn input-button-style"
+                                    onClick={() => {
+                                        // setCurrentChat((prev) => {
+                                        //     if (prev) socket.current.emit("leaveGroup", prev._id);
+                                        // });
+                                        setCurrentGroupId(val._id);
+                                        setSelectedGroup({
+                                            groupName: val.groupName,
+                                            participants: val.participants,
+                                        });
+                                    }}
+                                >
+                                    <Groups key={id + "key"} id={val._id} groups={val}></Groups>
+                                </button>
                             );
                         })}
                 </div>

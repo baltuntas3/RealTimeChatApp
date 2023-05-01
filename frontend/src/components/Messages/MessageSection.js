@@ -9,7 +9,7 @@ import { useMessage } from "../../context/messageContext";
 
 export default function MessageSection({ groupId, currentSocket }) {
     const { user } = useUser();
-    const { setLastMessage } = useMessage();
+    const { setLastMessage, selectedGroup } = useMessage();
 
     const messageSection = useRef(null);
     const [newMessage, setNewMessage] = useState("");
@@ -22,6 +22,7 @@ export default function MessageSection({ groupId, currentSocket }) {
         if (groupId) {
             const payload = { groupId: groupId, pageNumber: 1, nPerPage: 30 };
             const [getMessagesData, error] = await getMessagesPagination(payload);
+
             if (!error) setConversations(getMessagesData.reverse());
         }
     }
@@ -30,7 +31,6 @@ export default function MessageSection({ groupId, currentSocket }) {
         if (e.target.scrollTop < 100 && e.target.scrollTop && scrollable) {
             setPageNumber((prev) => prev + 1);
         }
-        console.log("scrolling");
     }, []);
 
     useEffect(() => {
@@ -39,18 +39,13 @@ export default function MessageSection({ groupId, currentSocket }) {
     }, [scrollable]);
 
     useEffect(() => {
-        if (pageNumber > 1) {
-            onPageChange();
-            console.log(pageNumber);
-        }
+        if (pageNumber > 1) onPageChange();
     }, [pageNumber]);
 
     useEffect(() => {
         setPageNumber(1);
         getMessages();
-        return () => {
-            setScrollable(true);
-        };
+        return () => setScrollable(true);
     }, [groupId]);
 
     useEffect(() => {
@@ -72,6 +67,7 @@ export default function MessageSection({ groupId, currentSocket }) {
             senderId: user.id,
             groupId: groupId,
             message: newMessage.target.value,
+            createdAt: new Date().toJSON(),
         };
         const [send, err] = await sendMessage(messageBuilder);
         if (!err) setConversations([...conversations, send]);
@@ -95,27 +91,53 @@ export default function MessageSection({ groupId, currentSocket }) {
             const [getMessagesData, error] = await getMessagesPagination(payload);
             if (!error && getMessagesData.length && pageNumber > 1) {
                 setConversations((prev) => [...getMessagesData.reverse(), ...prev]);
-                console.log(getMessagesData);
             } else {
                 setScrollable(false);
             }
         }
     }
 
+    function getUserNameSenderGroupMember(participants = [], participantId) {
+        return participants[participants.findIndex(({ _id }) => _id === participantId)].userName;
+    }
+
     return (
         <>
             <Title></Title>
+            {/* <div className="message-section-background"></div> */}
             <div className="message-section" ref={messageSection}>
                 {/* iterate this two element  */}
                 {conversations.map((val, id) => {
                     const { sender, message } = val;
                     return sender === user.id ? (
                         <div key={id} className="message ">
-                            <p className="message-content sender">{message}</p>
+                            {/* TODO: Iki kişiden fazlaysa isimlerini de ekle. Buradan yapılacak. */}
+
+                            <div className="message-content sender">
+                                {selectedGroup.participants.length > 2 && (
+                                    <p
+                                        className="message-sender-name"
+                                        style={{ color: `#${sender.substring(sender?.length - 4)}0F` }}
+                                    >
+                                        {getUserNameSenderGroupMember(selectedGroup?.participants, sender)}
+                                    </p>
+                                )}
+                                {message}
+                            </div>
                         </div>
                     ) : (
                         <div key={id} className="message ">
-                            <p className="message-content receiver">{message}</p>
+                            <div className="message-content receiver">
+                                {selectedGroup.participants.length > 2 && (
+                                    <p
+                                        className="message-receiver-name"
+                                        style={{ color: `#${sender.substring(sender?.length - 4)}FF` }}
+                                    >
+                                        {getUserNameSenderGroupMember(selectedGroup?.participants, sender)}
+                                    </p>
+                                )}
+                                {message}
+                            </div>
                         </div>
                     );
                 })}
@@ -124,9 +146,7 @@ export default function MessageSection({ groupId, currentSocket }) {
                 <div className="message-text">
                     <Input className="message-input" placeholder="Bir mesaj yazın..." onChange={setNewMessage}></Input>
                 </div>
-                <button className="message-send-button input-button-style" onClick={handleSubmit}>
-                    Gönder
-                </button>
+                <button className="message-send-button input-button-style" onClick={handleSubmit}></button>
             </div>
         </>
     );
