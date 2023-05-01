@@ -40,11 +40,12 @@ io.on("connection", (socket) => {
         socket.leave(groupId);
     });
 
-    socket.on("sendGroupMessage", ({ senderId, groupId, message }) => {
+    socket.on("sendGroupMessage", ({ senderId, groupId, message, createdAt }) => {
         socket.to(groupId).emit("getGroupMessage", {
             groupId: groupId,
             senderId: senderId,
             message: message,
+            createdAt: createdAt,
         });
 
         //     if (getUserById(receiverId)) {
