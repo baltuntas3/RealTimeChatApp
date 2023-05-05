@@ -4,15 +4,31 @@ services:
         build: frontend
         ports:
             - 3000:8090
+        environment:
+            REACT_APP_WEBSOCKET_URL: "ws://backend:3005"
+            REACT_APP_BASE_URL: "http://backend:5000"
+            GENERATE_SOURCEMAP: false
     backend:
         build: backend
         environment:
             MONGO_CONNECTION: "mongodb://mongodb/chat-app-db"
+            REDIS_CONNECTION: "redis://default@redis:6379"
         ports:
             - 5000:5000
+            - 3005:3005
+        depends_on:
+            - redis
+            - mongodb
     mongodb:
         image: mongo
         ports:
             - 37017:27017
         volumes:
             - ./data:/data/db
+    redis:
+        image: redis:alpine
+        ports:
+            - 6379:6379
+        # environment:
+        #     - ALLOW_EMPTY_PASSWORD=yes
+        #     - REDIS_PASSWORD=123
