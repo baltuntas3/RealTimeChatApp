@@ -1,9 +1,23 @@
 import axios from "axios";
-// import { useAlert } from "../context/errorMessageContext";
-// require("dotenv").config();
-// process.env.REACT_APP_BASE_URL ||
-axios.defaults.baseURL = "http://localhost:5000";
+
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
+// axios.interceptors.response.use(
+//     (response) => {
+//         //
+//         if (response.status === 200) {
+//             return response;
+//         }
+//         return Promise.reject(response);
+//     },
+//     (error) => {
+//         if (error.response && (error.response.status === 401 || error.response.status === 418)) {
+//             window.location.replace(process.env.REACT_APP_LOGIN_URL);
+//         }
+
+//         return Promise.reject(error);
+//     }
+// );
 
 async function handleRequest(url, payload = undefined) {
     try {

@@ -22,13 +22,14 @@ export default function Groups({ groups, id }) {
     }
 
     useEffect(() => {
-        if (id === lastMessage.groupId) {
-            setLocalLastMessage(lastMessage);
-        }
+        if (id === lastMessage.groupId) setLocalLastMessage(lastMessage);
+
+        // eslint-disable-next-line
     }, [lastMessage]);
 
     useEffect(() => {
         getLastMessage();
+        // eslint-disable-next-line
     }, []);
 
     function sliceIfTooBig(string) {

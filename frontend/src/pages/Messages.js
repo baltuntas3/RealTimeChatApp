@@ -14,7 +14,7 @@ export default function MessagesPage() {
     const socket = useRef();
     const [currentGroupId, setCurrentGroupId] = useState(undefined);
     const [messages, setMessages] = useState([]);
-    const { alertMessage, setAlertMessage } = useAlert();
+    const { setAlertMessage } = useAlert();
     // const [conversations, setConversations] = useState([]);
 
     const { user } = useUser();
@@ -34,11 +34,13 @@ export default function MessagesPage() {
 
     useEffect(() => {
         getUserInbox();
+        // eslint-disable-next-line
     }, []);
 
     useEffect(() => {
         // backend-iweogtomcq-ew.a.run.app
-        socket.current = io("ws://localhost:3005");
+        const websocketURL = process.env.REACT_APP_WEBSOCKET_URL || "ws://localhost:3005";
+        socket.current = io(websocketURL);
 
         socket.current.on("getGroupMessage", (obj) => {
             // set last message
@@ -49,6 +51,7 @@ export default function MessagesPage() {
             // Unmount
             socket.current.disconnect();
         };
+        // eslint-disable-next-line
     }, []);
 
     useEffect(() => {
@@ -56,6 +59,7 @@ export default function MessagesPage() {
         socket.current.on("getUsers", (users) => {
             // you can catch the online users.
         });
+        // eslint-disable-next-line
     }, [user?.id]);
 
     return (

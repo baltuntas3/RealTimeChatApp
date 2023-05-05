@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect } from "react";
+import React, { forwardRef } from "react";
 
 const Input = ({ value, onChange, ...rest }, ref) => {
     return (

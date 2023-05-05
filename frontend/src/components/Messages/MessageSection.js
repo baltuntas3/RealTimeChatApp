@@ -31,11 +31,13 @@ export default function MessageSection({ groupId, currentSocket }) {
         if (e.target.scrollTop < 100 && e.target.scrollTop && scrollable) {
             setPageNumber((prev) => prev + 1);
         }
+        // eslint-disable-next-line
     }, []);
 
     useEffect(() => {
         if (!scrollable) messageSection.current.removeEventListener("scroll", scrollEvent);
         else messageSection.current.addEventListener("scroll", scrollEvent);
+        // eslint-disable-next-line
     }, [scrollable]);
 
     useEffect(() => {
@@ -46,10 +48,12 @@ export default function MessageSection({ groupId, currentSocket }) {
         setPageNumber(1);
         getMessages();
         return () => setScrollable(true);
+        // eslint-disable-next-line
     }, [groupId]);
 
     useEffect(() => {
         setScrollPos();
+        // eslint-disable-next-line
     }, [conversations]);
 
     useEffect(() => {
@@ -60,6 +64,7 @@ export default function MessageSection({ groupId, currentSocket }) {
                     message: obj.message,
                 });
             });
+        // eslint-disable-next-line
     }, [currentSocket]);
 
     async function handleSubmit(e) {
@@ -83,6 +88,7 @@ export default function MessageSection({ groupId, currentSocket }) {
 
     useEffect(() => {
         arrivalMessage && setConversations((prev) => [...prev, arrivalMessage]);
+        // eslint-disable-next-line
     }, [arrivalMessage]);
 
     async function onPageChange() {
