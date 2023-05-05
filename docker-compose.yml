@@ -3,11 +3,13 @@ services:
     frontend:
         build: frontend
         ports:
-            - 3000:8090
+            - 3000:80
         environment:
             REACT_APP_WEBSOCKET_URL: "ws://backend:3005"
             REACT_APP_BASE_URL: "http://backend:5000"
             GENERATE_SOURCEMAP: false
+        links:
+            - "backend"
     backend:
         build: backend
         environment:
@@ -18,7 +20,9 @@ services:
             - 3005:3005
         depends_on:
             - redis
-            - mongodb
+            # - mongodb
+        links:
+            - "redis"
     # mongodb:
     #     image: mongo
     #     ports:
@@ -29,14 +33,17 @@ services:
         image: redis:alpine
         ports:
             - 6379:6379
-    nginx:
-        build: nginx
-        ports:
-            - 8090:8090
-            - 80:80
-            - 443:443
-        volumes:
-            - /data/certs:/etc/nginx/certs
-        # environment:
-        #     - ALLOW_EMPTY_PASSWORD=yes
-        #     - REDIS_PASSWORD=123
+    # nginx:
+    #     build: nginx
+    #     ports:
+    #         - 3000:8090
+    #         # - 80:80
+    #         - 443:443
+    #     depends_on:
+    #         - backend
+    #         - frontend
+    # volumes:
+    #     - /data/certs:/etc/nginx/certs
+    # environment:
+    #     - ALLOW_EMPTY_PASSWORD=yes
+    #     - REDIS_PASSWORD=123
