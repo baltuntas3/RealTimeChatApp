@@ -1,9 +1,13 @@
 const { createClient } = require("redis");
 const errorMessage = require("../helpers/ErrorHandling");
+require("dotenv").config();
 
 const client = createClient({
     // redis://username:password@ip:port
-    url: "redis://default@127.0.0.1:6379",
+    url: process.env.REDIS_CONNECTION || "redis://default@127.0.0.1:6379",
+    socket: {
+        reconnectStrategy: (retries) => Math.min(retries * 50, 1000),
+    },
 });
 client.on("error", (err) => console.log("Redis Client Error", err));
 async function main() {

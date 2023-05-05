@@ -12,11 +12,7 @@ app.use(cookieParser());
 app.use(
     cors({
         credentials: true,
-        origin: [
-            "https://frontend-iweogtomcq-ew.a.run.app",
-            "http://localhost:3000",
-            "https://real-time-chat-app-frontend-eight.vercel.app",
-        ],
+        origin: ["http://localhost:3000", "https://real-time-chat-app-frontend-eight.vercel.app"],
     })
 );
 app.use(express.json());
