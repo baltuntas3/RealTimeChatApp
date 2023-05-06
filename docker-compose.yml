@@ -13,7 +13,7 @@ services:
     backend:
         build: backend
         environment:
-            MONGO_CONNECTION: "mongodb+srv://burakaltuntas123:sTMul2eDHWEZhCWE@cluster0.lfobkzc.mongodb.net/?retryWrites=true&w=majority"
+            MONGO_CONNECTION: ""
             REDIS_CONNECTION: "redis://default@redis:6379"
         ports:
             - 5000:5000
