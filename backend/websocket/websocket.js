@@ -1,6 +1,6 @@
 //socket.io
-const http = require("http");
-const server = http.createServer();
+const https = require("https");
+const server = https.createServer();
 const { Server } = require("socket.io");
 const io = new Server(server, {
     cors: { origin: "*" },
