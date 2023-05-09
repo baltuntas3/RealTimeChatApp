@@ -3,7 +3,7 @@ const userRouter = require("./routes/Users");
 const messagesRouter = require("./routes/Messages");
 const messageGroupsRouter = require("./routes/MessageGroups");
 const helmet = require("helmet");
-const https = require("https");
+const https = require("http");
 const cors = require("cors");
 require("./configs/MongoDBConnection");
 const fs = require("fs");
@@ -23,7 +23,7 @@ app.use(cookieParser());
 app.use(
     cors({
         credentials: true,
-        origin: ["http://localhost:3000", "https://real-time-chat-app-frontend-eight.vercel.app"],
+        origin: ["https://real-time-chat-app-frontend-eight.vercel.app"],
     })
 );
 app.use(express.json());

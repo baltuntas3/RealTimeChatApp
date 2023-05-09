@@ -8,14 +8,7 @@ RUN npm install
 
 COPY . .
 
-# ARG  REACT_APP_WEBSOCKET_URL
-
-# ARG REACT_APP_BASE_URL
-
-# ENV REACT_APP_WEBSOCKET_URL=ws://backend-iweogtomcq-ew.a.run.app:3005 REACT_APP_BASE_URL=https://backend-iweogtomcq-ew.a.run.app
-ENV REACT_APP_WEBSOCKET_URL ws://backend:3005
-ENV REACT_APP_BASE_URL http://backend:5000
-
+ARG REACT_APP_BASE_URL
 
 EXPOSE 3000
 

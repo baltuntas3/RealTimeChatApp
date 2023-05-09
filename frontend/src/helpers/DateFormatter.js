@@ -3,7 +3,6 @@ function formatDate(olderDate, currentDate = Date.now()) {
     olderDate = new Date(olderDate);
 
     const diff = olderDate - currentDate;
-    console.log(diff, "sayı çıkmalı");
     // get locale from local storage
 
     const formatter = new Intl.RelativeTimeFormat("tr", { numeric: "auto" });
