@@ -17,11 +17,20 @@ RUN npm run build
 
 
 FROM nginx:alpine
+
+RUN apk update && apk add openssl
+
+RUN openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048 &&\
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/certs/self.key -out /etc/ssl/certs/self.crt \
+    -subj "/C=TR/ST=./L=./O=. Code/OU=./CN=."
+
 COPY nginx.conf /etc/nginx/conf.d/configfile.template
+
+COPY ssl-params.conf /etc/nginx/ssl-params.conf
 
 COPY --from=builder /app/build /usr/share/nginx/html
 
 ENV PORT 80
 ENV HOST 0.0.0.0
-EXPOSE 80
+
 CMD sh -c "envsubst '\$PORT' < /etc/nginx/conf.d/configfile.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
