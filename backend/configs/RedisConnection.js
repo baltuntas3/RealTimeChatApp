@@ -1,5 +1,5 @@
 const { createClient } = require("redis");
-const errorMessage = require("../helpers/ErrorHandling");
+const errorMessage = require("../middlewares/ErrorHandler");
 require("dotenv").config();
 
 const client = createClient({

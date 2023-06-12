@@ -1,0 +1,6 @@
+{
+    "a": "a",
+    "logOut": "Başarılı bir şekilde çıkış yapıldı.",
+    "authException": "Oturumla ilgili bir sorun oldu.",
+    "userPass": "Kullanıcı adı ya da şifre yanlış."
+}

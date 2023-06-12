@@ -1,5 +1,3 @@
-const errorMessage = require("../helpers/ErrorHandling");
-
 module.exports = class Service {
     async findAll() {
         return this.model.find();
@@ -43,9 +41,5 @@ module.exports = class Service {
 
     async update(itemId, set) {
         return this.model.update(itemId, set, { upsert: true });
-    }
-
-    handleError(message) {
-        return errorMessage(message);
     }
 };

@@ -5,43 +5,29 @@ class MessageService extends BaseService {
     model = MessageModel;
 
     async sendMessage(groupId, senderId, message) {
-        try {
-            const sendMessage = await this.add({
-                messageGroupId: groupId,
-                sender: senderId,
-                message: message,
-            });
+        const sendMessage = await this.add({
+            messageGroupId: groupId,
+            sender: senderId,
+            message: message,
+        });
 
-            res.json(sendMessage);
-        } catch (err) {
-            return this.handleError(err.message);
-        }
+        res.json(sendMessage);
     }
 
     async findAllMessages(groupId) {
-        try {
-            return this.query({
-                messageGroupId: groupId,
-            });
-        } catch (err) {}
+        return this.query({
+            messageGroupId: groupId,
+        });
     }
 
     async getLastMessageInGroup(groupId) {
-        try {
-            return this.findLastItem({
-                messageGroupId: groupId,
-            });
-        } catch (err) {
-            return this.handleError(err.message);
-        }
+        return this.findLastItem({
+            messageGroupId: groupId,
+        });
     }
 
     async getMessagesPagination(groupId, pageNumber, nPerPage) {
-        try {
-            return this.queryPagination({ messageGroupId: groupId }, pageNumber, nPerPage);
-        } catch (err) {
-            return this.handleError(err.message);
-        }
+        return this.queryPagination({ messageGroupId: groupId }, pageNumber, nPerPage);
     }
 }
 

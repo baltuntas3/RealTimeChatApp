@@ -1,0 +1,6 @@
+{
+    "a": "a",
+    "logOut": "successfully logged out!",
+    "authException": "There was a problem with the session.",
+    "userPass": "username or password is wrong."
+}

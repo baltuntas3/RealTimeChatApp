@@ -1,6 +1,7 @@
 const { getValueRedis, setValueRedis, updateExistKey } = require("../configs/RedisConnection");
 const jwt = require("jsonwebtoken");
-const errorMessage = require("../helpers/ErrorHandling");
+// const { errorHandler, catchErrors } = require("../middlewares/ErrorHandler");
+const AuthException = require("../exceptions/AuthException");
 require("dotenv").config();
 const { ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME, COOKIE_EXPIRE_TIME } = process.env;
 
@@ -8,7 +9,7 @@ const verifyToken = async (req, res, next) => {
     try {
         const token = (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.token;
 
-        if (!token) return res.status(401).send(errorMessage("Token must provided"));
+        if (!token) return next(new AuthException("Token must provided"));
 
         const user = jwt.verify(token, ACCESS_SECRET_KEY);
         req.user = user;
@@ -20,7 +21,7 @@ const verifyToken = async (req, res, next) => {
             const { id: userId } = jwt.decode(token);
             const refreshToken = await getValueRedis(userId);
 
-            if (!refreshToken) return res.status(401).send(errorMessage("Invalid Token: " + err.message));
+            if (!refreshToken) return next(new AuthException("Invalid Token: " + err.message));
 
             const refreshUser = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET_KEY);
             const newAccessToken = jwt.sign({ username: refreshUser.username, id: refreshUser.id }, ACCESS_SECRET_KEY, {
@@ -36,7 +37,7 @@ const verifyToken = async (req, res, next) => {
 
             return next();
         }
-        return res.status(401).send(errorMessage("Something went wrong!"));
+        return next(new AuthException("Something went wrong!"));
     }
 };
 

@@ -7,8 +7,8 @@ const UserModel = require("../../models/Users");
 describe("users", () => {
     let { MONGO_CONNECTION } = process.env;
 
-    beforeAll(async () => {
-        await mongoose.connect(MONGO_CONNECTION, { useNewUrlParser: true, useCreateIndex: true }, (err) => {
+    beforeAll(() => {
+        mongoose.connect(MONGO_CONNECTION, { useNewUrlParser: true, useCreateIndex: true }, (err) => {
             if (err) {
                 console.error(err, "hata");
                 process.exit(1);
