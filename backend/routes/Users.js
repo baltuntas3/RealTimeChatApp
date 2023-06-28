@@ -47,7 +47,7 @@ router.post(
                 const accessToken = JwtHelper.generateJwtToken({ username: user.userName, id: user._id });
                 const refreshToken = JwtHelper.generateRefreshJwtToken({ username: user.userName, id: user._id });
                 req.user = user;
-                res.cookie("token", accessToken, {
+                res.cookie("accessToken", accessToken, {
                     httpOnly: true,
                     secure: true,
                     sameSite: "none",
@@ -66,5 +66,14 @@ router.get("/get-user-info", verifyToken, (req, res, next) => {
     if (req.user) return res.send(req.user);
     return next(new AuthException(res.locals.t("authException")));
 });
+
+router.get(
+    "/get-all-users",
+    verifyToken,
+    catchErrors(async (req, res) => {
+        const user = await UserService.findAll();
+        res.send(user);
+    })
+);
 
 module.exports = router;

@@ -1,12 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const { MessageService, MessageGroupService } = require("../services/AllServices");
-const verifyToken = require("../middlewares/Auth");
 const { catchErrors } = require("../middlewares/ErrorHandler");
 
 router.post(
     "/send",
-    verifyToken,
     catchErrors(async (req, res) => {
         const { groupId, senderId, message } = req.body;
         const sendMessage = await MessageService.add({
@@ -21,7 +19,6 @@ router.post(
 
 router.get(
     "/group-messages/:groupId",
-    verifyToken,
     catchErrors(async (req, res) => {
         const { groupId } = req.params;
 
@@ -32,7 +29,6 @@ router.get(
 
 router.get(
     "/inbox",
-    verifyToken,
     catchErrors(async (req, res) => {
         const { id } = req.user;
         const userInbox = await MessageGroupService.listMyChatGroups(id);
@@ -42,7 +38,6 @@ router.get(
 
 router.get(
     "/get-last-message/:groupId",
-    verifyToken,
     catchErrors(async (req, res) => {
         const { groupId } = req.params;
         const lastMessage = await MessageService.getLastMessageInGroup(groupId);
@@ -52,7 +47,7 @@ router.get(
 
 router.post(
     "/group-messages-pagination",
-    verifyToken,
+
     catchErrors(async (req, res) => {
         const { groupId, pageNumber, nPerPage } = req.body;
 

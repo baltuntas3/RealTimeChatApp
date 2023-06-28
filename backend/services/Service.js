@@ -7,12 +7,12 @@ module.exports = class Service {
         return this.model.create(item);
     }
 
-    async del(itemId) {
-        return this.model.remove({ _id: itemId });
+    async del(documentId) {
+        return this.model.remove({ _id: documentId });
     }
 
-    async find(itemId) {
-        return this.model.findById(itemId);
+    async find(documentId) {
+        return this.model.findById(documentId);
     }
     //This function in the wrong place
     async findByUserName(username) {
@@ -39,7 +39,7 @@ module.exports = class Service {
         return this.model.find(object).sort({ createdAt: -1 }).limit(1);
     }
 
-    async update(itemId, set) {
-        return this.model.update(itemId, set, { upsert: true });
+    async update(documentId, set) {
+        return this.model.update(documentId, set, { upsert: true });
     }
 };

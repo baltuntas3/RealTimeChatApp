@@ -21,9 +21,11 @@ const disconnectUser = (socketId) => {
 io.on("connection", (socket) => {
     socket.on("addUser", (getUserId) => {
         console.log("a user connected.");
+        // if (getUserId) {
         filterUsers(getUserId, socket.id);
         io.emit("getUsers", users);
         console.log(users);
+        // }
     });
 
     socket.on("disconnect", () => {

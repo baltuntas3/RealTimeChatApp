@@ -1,7 +1,7 @@
-const BaseService = require("./BaseService");
+const Service = require("./Service");
 const MessageModel = require("../models/Messages");
 
-class MessageService extends BaseService {
+class MessageService extends Service {
     model = MessageModel;
 
     async sendMessage(groupId, senderId, message) {

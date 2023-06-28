@@ -7,17 +7,15 @@ const { ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME, COOKIE_E
 
 const verifyToken = async (req, res, next) => {
     try {
-        const token = (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.token;
-
-        if (!token) return next(new AuthException("Token must provided"));
-
+        const token =
+            (req.headers["authorization"] && req.headers["authorization"].split(" ")[1]) || req.cookies.accessToken;
         const user = jwt.verify(token, ACCESS_SECRET_KEY);
         req.user = user;
         return next();
     } catch (err) {
         if (err.name === "TokenExpiredError") {
             const token =
-                (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.token;
+                (req.headers["authorization"] && req.headers["authorization"].split(" ")[1]) || req.cookies.accessToken;
             const { id: userId } = jwt.decode(token);
             const refreshToken = await getValueRedis(userId);
 
@@ -27,7 +25,7 @@ const verifyToken = async (req, res, next) => {
             const newAccessToken = jwt.sign({ username: refreshUser.username, id: refreshUser.id }, ACCESS_SECRET_KEY, {
                 expiresIn: TOKEN_EXPIRE_TIME,
             });
-            res.cookie("token", newAccessToken, {
+            res.cookie("accessToken", newAccessToken, {
                 httpOnly: true,
                 secure: true,
                 sameSite: "none",

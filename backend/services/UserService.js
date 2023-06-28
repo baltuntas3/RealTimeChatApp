@@ -1,8 +1,8 @@
-const BaseService = require("./BaseService");
+const Service = require("./Service");
 const UserModel = require("../models/Users");
 const bcrypt = require("bcrypt");
 
-class UserService extends BaseService {
+class UserService extends Service {
     model = UserModel;
 
     async signIn(userInformation) {

@@ -10,6 +10,7 @@ const fs = require("fs");
 const { errorHandler } = require("./middlewares/ErrorHandler");
 const I18n = require("./locales/SimpleI18n");
 const cookieParser = require("cookie-parser");
+const verifyToken = require("./middlewares/Auth");
 // i18n.loadTranslations("./translations"); // use this as a middleware
 const app = express();
 const server = http.createServer(
@@ -31,7 +32,7 @@ app.use(express.json());
 
 app.use((req, res, next) => I18n.init(req, res, next));
 app.use("/users", userRouter);
-app.use("/messages", messagesRouter);
+app.use("/messages", verifyToken, messagesRouter);
 app.use("/groups", messageGroupsRouter);
 // Must be the last middleware
 app.use(errorHandler);
