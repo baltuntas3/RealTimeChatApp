@@ -4,11 +4,14 @@ import Input from "../Input";
 import { getMessagesPagination, sendMessage } from "../../services/api";
 import Title from "./Title";
 import { useMessage } from "../../context/messageContext";
+import { useSocket } from "../../context/socketContext";
 
 // import Title from "./Title";
 
-export default function MessageSection({ groupId, currentSocket }) {
+export default function MessageSection({ groupId }) {
     const { user } = useUser();
+    const { socket } = useSocket();
+
     const { setLastMessage, selectedGroup } = useMessage();
 
     const messageSection = useRef(null);
@@ -17,13 +20,16 @@ export default function MessageSection({ groupId, currentSocket }) {
     const [scrollable, setScrollable] = useState(true);
     const [conversations, setConversations] = useState([]);
     const [pageNumber, setPageNumber] = useState(1);
+    const [loading, setLoading] = useState(false);
 
     async function getMessages() {
         if (groupId) {
+            setLoading(true);
             const payload = { groupId: groupId, pageNumber: 1, nPerPage: 30 };
             const [getMessagesData, error] = await getMessagesPagination(payload);
 
             if (!error) setConversations(getMessagesData.reverse());
+            setLoading(false);
         }
     }
 
@@ -52,20 +58,19 @@ export default function MessageSection({ groupId, currentSocket }) {
     }, [groupId]);
 
     useEffect(() => {
-        setScrollPos();
+        if (!loading) setScrollPos();
         // eslint-disable-next-line
-    }, [conversations]);
+    }, [loading]);
 
     useEffect(() => {
-        currentSocket &&
-            currentSocket.on("getGroupMessage", (obj) => {
-                setArrivalMessage({
-                    senderId: obj.senderId,
-                    message: obj.message,
-                });
+        socket.current.on("getGroupMessage", (obj) => {
+            setArrivalMessage({
+                senderId: obj.senderId,
+                message: obj.message,
             });
+        });
         // eslint-disable-next-line
-    }, [currentSocket]);
+    }, []);
 
     async function handleSubmit(e) {
         const messageBuilder = {
@@ -77,7 +82,7 @@ export default function MessageSection({ groupId, currentSocket }) {
         const [send, err] = await sendMessage(messageBuilder);
         if (!err) setConversations([...conversations, send]);
         // const receiverId = currentChat.participants.find((member) => member._id !== user.id);
-        currentSocket.emit("sendGroupMessage", messageBuilder);
+        socket.current.emit("sendGroupMessage", messageBuilder);
         setLastMessage(messageBuilder);
     }
 
@@ -112,13 +117,10 @@ export default function MessageSection({ groupId, currentSocket }) {
             <Title></Title>
             {/* <div className="message-section-background"></div> */}
             <div className="message-section" ref={messageSection}>
-                {/* iterate this two element  */}
                 {conversations.map((val, id) => {
                     const { sender, message } = val;
                     return sender === user.id ? (
                         <div key={id} className="message ">
-                            {/* TODO: Iki kişiden fazlaysa isimlerini de ekle. Buradan yapılacak. */}
-
                             <div className="message-content sender">
                                 {selectedGroup.participants.length > 2 && (
                                     <p

@@ -21,8 +21,7 @@ export default function LogIn() {
     });
 
     async function handleSubmit(e) {
-        const err = await fetchCurrentUser(values);
-        setAlertMessage(err?.message);
+        await fetchCurrentUser(values);
     }
 
     function formChangeHandler(e) {
@@ -36,8 +35,8 @@ export default function LogIn() {
     };
 
     useEffect(() => {
-        if (Object.keys(user).length !== 0) navigate("/profile");
-    }, []);
+        if (user) navigate("/profile");
+    }, [user]);
 
     useEffect(() => {
         usernameRef.current.focus();
@@ -51,6 +50,9 @@ export default function LogIn() {
                 value={values.username}
                 onChange={formChangeHandler}
                 ref={usernameRef}
+                validations={{
+                    required: { value: true, message: "gerekli alan" },
+                }}
                 onKeyPress={(e) => handleFocus(e, passwordRef)}
             />
             <Input
@@ -59,6 +61,9 @@ export default function LogIn() {
                 onChange={formChangeHandler}
                 type="password"
                 ref={passwordRef}
+                validations={{
+                    required: { value: true, message: "gerekli alan" },
+                }}
                 onKeyPress={(e) => handleFocus(e, submitRef)}
             />
 

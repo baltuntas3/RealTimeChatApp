@@ -125,23 +125,35 @@
 }
 
 .message-section {
-    height: 80vh;
-    /* background-repeat: repeat-x; */
-    background-color: #111b21;
-    background-size: 60px;
-    background-image: url("../assets/background-message.svg");
     overflow: auto;
+    height: 80vh;
+    /* background-size: 60px; */
+    /* background-repeat: repeat-x; */
+    /* background-color: #111b21;
+    background-image: url("../assets/background-message.svg"); */
     /* overflow-y: initial; */
     /* object-fit: cover; */
 
     /* height: 600px; scroll scroloğlunu ayarla */
     /*  */
+
+    --s: 60px; /* control the size */
+    --c1: #424345;
+    --c2: #0a0e11;
+    --c3: #172026;
+
+    --_s: calc(2 * var(--s)) calc(2 * var(--s));
+    --_g1: var(--_s) conic-gradient(at calc(500% / 6) 50%, var(--c3) 25%, #0000 0);
+    --_g2: var(--_s) conic-gradient(at calc(200% / 3) 50%, var(--c2) 25%, #0000 0);
+    background: var(--s) var(--s) / var(--_g1), 0 0 / var(--_g1), var(--s) var(--s) / var(--_g2), 0 0 / var(--_g2),
+        repeating-conic-gradient(var(--c1) 0 25%, #0000 0 50%) 0 0 / var(--_s),
+        linear-gradient(var(--c1) calc(100% / 3), var(--c2) 0 calc(200% / 3), var(--c3) 0) 0 0 / var(--s) var(--s);
 }
 .message-section::-webkit-scrollbar {
     background-color: transparent;
 
-    width: 6px !important;
-    height: 6px !important;
+    width: 6px;
+    height: 6px;
 
     /* border: none; */
 }

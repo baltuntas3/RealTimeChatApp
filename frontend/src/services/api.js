@@ -1,41 +1,49 @@
 import axios from "axios";
 
-axios.defaults.baseURL = process.env.REACT_APP_BASE_URL || "http://localhost:5000";
+axios.defaults.baseURL = process.env.REACT_APP_BACKEND_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
-// axios.interceptors.response.use(
-//     (response) => {
-//         //
-//         if (response.status === 200) {
-//             return response;
-//         }
-//         return Promise.reject(response);
-//     },
-//     (error) => {
-//         if (error.response && (error.response.status === 401 || error.response.status === 418)) {
-//             window.location.replace(process.env.REACT_APP_LOGIN_URL);
-//         }
-
-//         return Promise.reject(error);
-//     }
-// );
-
-async function handleRequest(url, payload = undefined) {
-    try {
-        let data = {};
-        if (payload) {
-            data = await axios.post(url, payload);
-        } else {
-            data = await axios.get(url);
+axios.interceptors.response.use(
+    (response) => {
+        //
+        if (response.status === 200) {
+            return response;
         }
+        return Promise.reject(response);
+    },
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            window.location.replace("/auth/login");
+        }
+
+        return Promise.reject(error);
+    }
+);
+
+//TODO: Post, Get ve diğerleri için ayrı handler yap.
+
+async function handleGetRequest(url) {
+    try {
+        const data = await axios.get(url);
 
         return [data.data, undefined];
     } catch (err) {
-        return [undefined, err];
+        return [undefined, err.response.data];
+    }
+}
+
+async function handlePostRequest(url, payload = undefined) {
+    try {
+        if (!payload) throw new Error("Payload boş olamaz");
+        const data = await axios.post(url, payload);
+
+        return [data.data, undefined];
+    } catch (err) {
+        return [undefined, err.response.data];
     }
 }
 
 async function logIn(login) {
-    return await handleRequest("users/login", {
+    return await handlePostRequest("users/login", {
         username: login.username,
         password: login.password,
     });
@@ -54,37 +62,40 @@ function deleteAllCookies() {
 
 async function logout() {
     deleteAllCookies();
-    return await handleRequest("users/logout");
+    return await handleGetRequest("users/logout");
 }
 
 async function getInbox() {
-    return await handleRequest("messages/inbox");
+    return await handleGetRequest("messages/inbox");
 }
 
 async function getMessagesByGroupId(groupId) {
-    return await handleRequest("messages/group-messages/" + groupId);
+    return await handleGetRequest("messages/group-messages/" + groupId);
 }
 
-async function register(registerForm) {
-    return await handleRequest("users/sign-in", { ...registerForm, age: 20 });
+async function registerUser(registerForm) {
+    return await handlePostRequest("users/sign-in", { ...registerForm });
 }
 
 async function getLastMessageInGroup(groupId) {
-    return await handleRequest("messages/get-last-message/" + groupId);
+    return await handleGetRequest("messages/get-last-message/" + groupId);
 }
 
 async function sendMessage(messageBuilder) {
-    return await handleRequest("messages/send", messageBuilder);
+    return await handlePostRequest("messages/send", messageBuilder);
 }
 // /group-messages-pagination
 async function getMessagesPagination(payload) {
-    return await handleRequest("messages/group-messages-pagination", payload);
+    return await handlePostRequest("messages/group-messages-pagination", payload);
 }
 async function getUserInfo() {
-    return await handleRequest("users/get-user-info");
+    return await handleGetRequest("users/get-user-info");
+}
+async function getAllUsers() {
+    return await handleGetRequest("users/get-all-users");
 }
 export {
-    register,
+    registerUser,
     getInbox,
     logout,
     logIn,
@@ -93,4 +104,5 @@ export {
     sendMessage,
     getMessagesPagination,
     getUserInfo,
+    getAllUsers,
 };

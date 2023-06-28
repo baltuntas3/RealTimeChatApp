@@ -1,5 +1,5 @@
 import LogIn from "./pages/LogIn";
-import { Route, Routes, Link, NavLink } from "react-router-dom";
+import { Route, Routes, Link } from "react-router-dom";
 import Messages from "./pages/Messages";
 import { useUser } from "./context/userContext";
 import { useAlert } from "./context/errorMessageContext";
@@ -8,65 +8,74 @@ import Register from "./pages/Register";
 import "./index.css";
 import MessageContextProvider from "./context/messageContext";
 import ProfilePage from "./pages/Profile";
-/*
+import Home from "./pages/Home";
+import PrivateRoute from "./components/PrivateRoute";
+import HomeLayout from "./layouts/HomeLayout";
+import AuthLayout from "./layouts/AuthLayout";
+import Page404 from "./pages/Page404";
+import UserContextProvider from "./context/userContext";
+import SocketContextProvider from "./context/socketContext";
 
-Grup mesajlarında isimleri yaz. 
-2 kişiden fazlaysa grup resmi koy. V
-2 kişilikse grup grup başlığı mesaj gönderilen kişi olsun. Renklerde olsun. V
-
-*/
 function App() {
     //user için cookie kontrölü yap
-    const { user, setUser } = useUser();
-    const { alertMessage, setAlertMessage } = useAlert();
 
-    const logoutHandler = () => {
-        logout();
-        setUser({});
-    };
+    /**
+     * CompoundComponent kullanarak notification ve kullanıcı bilgileriyle ilgili pop component yap.
+     * Socket bağlantısı her yerde olsun V
+     * Home sayfasında "getUsers" eventinden online kullanıcıları al ve bütün kullanıcıları yazdır.
+     * HOme sayfasında kişiler seçilip gonuşma grubu kurulsun mesajlara yönlendir.
+     * Error handling yap backend ve frontend için
+     * Register düzelt
+     * UserAgent bilgisi tutularak aynı kullanıcının farklı tarayıcıdan girişi engellenebilir.
+     */
+
+    // const { user, setUser } = useUser();
+    const { alertMessage, setAlertMessage } = useAlert();
 
     return (
         <div className="wrapper">
-            <nav>
-                {/* <Link to="/">Home</Link> */}
-
-                {Object?.keys(user).length !== 0 ? (
-                    <>
-                        <Link to="/messages" className="link-element">
-                            Messages
-                        </Link>
-                        <Link to="/profile" className="link-element">
-                            Profile
-                        </Link>
-                        <Link to="/" className="link-element" onClick={logoutHandler}>
-                            Logout
-                        </Link>
-                    </>
-                ) : (
-                    <>
-                        <Link to="/login" className="link-element">
-                            Login
-                        </Link>
-                        <Link to="/" className="link-element">
-                            Register
-                        </Link>
-                    </>
-                )}
-            </nav>
             <Routes>
-                <Route path="/" element={<Register />} />
                 <Route
-                    path="/messages"
+                    path="/"
                     element={
-                        <MessageContextProvider>
-                            <Messages />
-                        </MessageContextProvider>
+                        <PrivateRoute>
+                            <HomeLayout />
+                        </PrivateRoute>
                     }
-                />
-                <Route path="/login" element={<LogIn />} />
-                <Route path="/profile" element={<ProfilePage />} />
-
-                <Route path="/register" element={<Register />} />
+                >
+                    <Route
+                        index={true}
+                        path="home"
+                        element={
+                            <SocketContextProvider>
+                                <Home />
+                            </SocketContextProvider>
+                        }
+                    />
+                    <Route
+                        path="profile"
+                        element={
+                            <SocketContextProvider>
+                                <ProfilePage />
+                            </SocketContextProvider>
+                        }
+                    />
+                    <Route
+                        path="messages"
+                        element={
+                            <SocketContextProvider>
+                                <MessageContextProvider>
+                                    <Messages />
+                                </MessageContextProvider>
+                            </SocketContextProvider>
+                        }
+                    />
+                </Route>
+                <Route path="/auth" element={<AuthLayout />}>
+                    <Route path="register" element={<Register />} />
+                    <Route path="login" element={<LogIn />} />
+                </Route>
+                <Route path="*" element={<Page404 />} />
             </Routes>
         </div>
     );

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import jwtDecode from "jwt-decode";
 import { logIn, getUserInfo } from "../services/api";
 import { useNavigate } from "react-router-dom";
@@ -10,17 +10,21 @@ const UserContextProvider = ({ children }) => {
     const navigate = useNavigate();
     const { alertMessage, setAlertMessage } = useAlert();
 
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState(false);
 
-    // const [isUserLoggedIn, setIsUserLoggedIn] = useState(() => {
-    //     const logIn = localStorage.getItem("isUserLoggedIn");
-    //     return logIn === "true" ? true : false;
-    // });
+    // useEffect(() => console.log("user bura"), []);
+
+    const [isUserLoggedIn, setIsUserLoggedIn] = useState(() => {
+        const logIn = localStorage.getItem("isUserLoggedIn");
+        return logIn === "true" ? true : false;
+    });
 
     async function fetchCurrentUser(payload) {
         const [data, error] = await logIn(payload);
         if (error) return error;
         setUser(jwtDecode(data.accessToken));
+        localStorage.setItem("isUserLoggedIn", true);
+        setIsUserLoggedIn(true);
         navigate("/messages");
     }
 
@@ -31,16 +35,15 @@ const UserContextProvider = ({ children }) => {
     }
 
     useEffect(() => {
-        getUserInformation();
-
-        // if (Object.keys(user).length)
-        // return () => {
-        //     console.log("unmount event!!");
-        // };
+        if (isUserLoggedIn) getUserInformation();
         // eslint-disable-next-line
-    }, []);
+    }, [isUserLoggedIn]);
 
-    return <UserContext.Provider value={{ user, setUser, fetchCurrentUser }}>{children}</UserContext.Provider>;
+    return (
+        <UserContext.Provider value={{ user, setUser, fetchCurrentUser, isUserLoggedIn }}>
+            {children}
+        </UserContext.Provider>
+    );
 };
 
 export default UserContextProvider;

@@ -1,8 +1,8 @@
 import React from "react";
-import { useState, useEffect, useRef } from "react";
-import io from "socket.io-client";
+import { useState, useEffect } from "react";
 import "../styles/Messages.css";
 import { useUser } from "../context/userContext";
+import { useSocket } from "../context/socketContext";
 import { useMessage } from "../context/messageContext";
 import { useAlert } from "../context/errorMessageContext";
 import Groups from "../components/Messages/Groups";
@@ -11,14 +11,17 @@ import Profile from "../components/Messages/Profile";
 import { getInbox } from "../services/api";
 
 export default function MessagesPage() {
-    const socket = useRef();
+    const { user } = useUser();
+    const { socket } = useSocket();
     const [currentGroupId, setCurrentGroupId] = useState(undefined);
     const [messages, setMessages] = useState([]);
     const { setAlertMessage } = useAlert();
+
     // const [conversations, setConversations] = useState([]);
 
-    const { user } = useUser();
     const { setLastMessage, setSelectedGroup } = useMessage();
+
+    // useEffect(() => console.log("ne zaman bura", socket?.current, "----"), [socket]);
 
     // getUser()
     async function getUserInbox() {
@@ -33,34 +36,10 @@ export default function MessagesPage() {
     }
 
     useEffect(() => {
-        getUserInbox();
+        if (socket.current) getUserInbox();
+
         // eslint-disable-next-line
-    }, []);
-
-    useEffect(() => {
-        // backend-iweogtomcq-ew.a.run.app
-        const websocketURL = process.env.REACT_APP_WEBSOCKET_URL || "ws://localhost:3005";
-        socket.current = io(websocketURL);
-
-        socket.current.on("getGroupMessage", (obj) => {
-            // set last message
-            setLastMessage(obj);
-        });
-
-        return () => {
-            // Unmount
-            socket.current.disconnect();
-        };
-        // eslint-disable-next-line
-    }, []);
-
-    useEffect(() => {
-        socket.current.emit("addUser", user?.id);
-        socket.current.on("getUsers", (users) => {
-            // you can catch the online users.
-        });
-        // eslint-disable-next-line
-    }, [user?.id]);
+    }, [socket.current]);
 
     return (
         <div className="container">
@@ -92,9 +71,7 @@ export default function MessagesPage() {
                 </div>
             </div>
             <div className="right-side">
-                {currentGroupId && (
-                    <MessageSection groupId={currentGroupId} currentSocket={socket.current}></MessageSection>
-                )}
+                {currentGroupId && <MessageSection groupId={currentGroupId}></MessageSection>}
             </div>
         </div>
     );
