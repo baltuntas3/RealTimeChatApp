@@ -1,6 +1,6 @@
 module.exports = class Service {
-    async findAll() {
-        return this.model.find();
+    async findAll(exceptFields) {
+        return this.model.find({},exceptFields);
     }
 
     async add(item) {
@@ -11,21 +11,21 @@ module.exports = class Service {
         return this.model.remove({ _id: documentId });
     }
 
-    async find(documentId) {
-        return this.model.findById(documentId);
+    async find(documentId,exceptFields) {
+        return this.model.findById(documentId,exceptFields);
     }
     //This function in the wrong place
-    async findByUserName(username) {
-        return this.model.findOne({ userName: username });
+    async findOneBy(condition,exceptFields) {
+        return this.model.findOne(condition,exceptFields);
     }
 
-    async query(object) {
-        return this.model.find(object);
+    async query(object,exceptFields) {
+        return this.model.find(object,exceptFields);
     }
 
-    async queryPagination(findByObject, pageNumber, nPerPage, sort = { createdAt: -1 }) {
+    async queryPagination(findByObject, pageNumber, nPerPage, sort = { createdAt: -1 },exceptFields) {
         return this.model
-            .find(findByObject)
+            .find(findByObject,exceptFields)
             .sort(sort)
             .skip(pageNumber > 0 ? (pageNumber - 1) * nPerPage : 0)
             .limit(nPerPage);

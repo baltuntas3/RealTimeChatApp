@@ -27,6 +27,7 @@ const UserSchema = new mongoose.Schema({
     friends:[{
         type: mongoose.SchemaTypes.ObjectId,
         ref: 'User', 
+        autopopulate: { select: 'userName',maxDepth:1 }
     }]
     
     

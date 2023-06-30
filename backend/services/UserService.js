@@ -15,6 +15,14 @@ class UserService extends Service {
             age: userInformation.age,
         });
     }
+
+    async findByUsername(username){
+        return await this.findOneBy({username:username},'-age')
+    }
+
+    async findAllUsers(){
+        return await this.findAll('-password')
+    }
 }
 
 module.exports = new UserService();

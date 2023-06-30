@@ -7,7 +7,9 @@ const NorificationSchema = new mongoose.Schema({
     },
     toUser: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        autopopulate: { select: 'userName',maxDepth:1 }
+
     },
     type:{
         type: String,

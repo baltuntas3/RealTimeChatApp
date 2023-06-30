@@ -2,7 +2,7 @@ const express = require("express");
 const userRouter = require("./routes/Users");
 const messagesRouter = require("./routes/Messages");
 const messageGroupsRouter = require("./routes/MessageGroups");
-const helmet = require("helmet");
+// const helmet = require("helmet");
 const http = require("http");
 const cors = require("cors");
 require("./configs/MongoDBConnection");
@@ -20,7 +20,7 @@ const server = http.createServer(
     // },
     app
 );
-app.use(helmet());
+// app.use(helmet());
 app.use(cookieParser());
 app.use(
     cors({

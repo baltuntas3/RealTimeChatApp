@@ -21,7 +21,7 @@ router.get(
     "profile/:id",
     catchErrors(async (req, res) => {
         const { id } = req.params;
-        const user = await UserService.find(id);
+        const user = await UserService.find(id,'-password');
         res.send(user);
     })
 );
@@ -39,7 +39,7 @@ router.post(
     catchErrors(async (req, res, next) => {
         // const { COOKIE_EXPIRE_TIME } = process.env;
         const userInformation = { username: req.body.username, password: req.body.password };
-        const user = await UserService.findByUserName(userInformation.username);
+        const user = await UserService.findByUsername(userInformation.username);
 
         if (user) {
             const pass = await JwtHelper.bcryptPasswordChecker(userInformation.password, user.password); //true or false
@@ -71,7 +71,7 @@ router.get(
     "/get-all-users",
     verifyToken,
     catchErrors(async (req, res) => {
-        const user = await UserService.findAll();
+        const user = await UserService.findAllUsers()
         res.send(user);
     })
 );

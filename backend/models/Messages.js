@@ -6,7 +6,9 @@ const MessagesSchema = new mongoose.Schema({
     },
     sender:{
         type: mongoose.SchemaTypes.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        autopopulate: { select: 'userName',maxDepth:1 }
+
     },
     message: {
         type:String
