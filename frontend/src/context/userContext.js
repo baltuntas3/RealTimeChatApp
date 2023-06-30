@@ -21,7 +21,7 @@ const UserContextProvider = ({ children }) => {
 
     async function fetchCurrentUser(payload) {
         const [data, error] = await logIn(payload);
-        if (error) return error;
+        if (error) return setAlertMessage(error.message);
         setUser(jwtDecode(data.accessToken));
         localStorage.setItem("isUserLoggedIn", true);
         setIsUserLoggedIn(true);
@@ -30,7 +30,7 @@ const UserContextProvider = ({ children }) => {
 
     async function getUserInformation() {
         const [userUseroglu, err] = await getUserInfo();
-        // if (err) throw setAlertMessage(err?.message);
+        if (err) throw setAlertMessage(err?.message);
         if (userUseroglu) setUser(userUseroglu);
     }
 

@@ -21,6 +21,11 @@ const SocketContextProvider = ({ children }) => {
         if (user) {
             socket.current = io(websocketURL);
         }
+
+        return ()=>{
+            console.log("disconnect")
+            socket.current.disconnect();
+        }
         // eslint-disable-next-line
     }, [user]);
 

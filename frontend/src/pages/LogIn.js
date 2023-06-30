@@ -47,16 +47,19 @@ export default function LogIn() {
             <h1>Login</h1>
             <Input
                 name="username"
+                key="username"
                 value={values.username}
                 onChange={formChangeHandler}
                 ref={usernameRef}
                 validations={{
                     required: { value: true, message: "gerekli alan" },
+                    maxLength:{value: 10, message: "10 gerekli alan"}
                 }}
                 onKeyPress={(e) => handleFocus(e, passwordRef)}
             />
             <Input
                 name="password"
+                key="password"
                 value={values.password}
                 onChange={formChangeHandler}
                 type="password"
