@@ -1,25 +1,19 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AlertContext = createContext();
 
 export default function AlertProvider({ children }) {
-    const [alertMessage, setAlertMessage] = useState(null);
-    // { error: err.message, status: err.status }
-    useEffect(() => {
-        if (alertMessage) toast(alertMessage, { type: toast.TYPE.WARNING });
-
-        // <ToastContainer />;
-        console.log(alertMessage);
-    }, [alertMessage]);
+    const addMessage = (message, type = "error") => {
+        toast.error(message, { autoClose: 3000, type: type }); // 'info' | 'success' | 'warning' | 'error' | 'default';
+    };
 
     return (
-        <AlertContext.Provider value={{ alertMessage, setAlertMessage }}>
+        <AlertContext.Provider value={{ addMessage }}>
             {children}
             <ToastContainer
                 position="top-right"
-                autoClose={5000}
                 hideProgressBar={false}
                 newestOnTop={false}
                 closeOnClick

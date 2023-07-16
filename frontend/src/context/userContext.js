@@ -8,7 +8,7 @@ export const UserContext = createContext();
 
 const UserContextProvider = ({ children }) => {
     const navigate = useNavigate();
-    const { alertMessage, setAlertMessage } = useAlert();
+    const { addMessage } = useAlert();
 
     const [user, setUser] = useState(false);
 
@@ -21,7 +21,7 @@ const UserContextProvider = ({ children }) => {
 
     async function fetchCurrentUser(payload) {
         const [data, error] = await logIn(payload);
-        if (error) return setAlertMessage(error.message);
+        if (error) return addMessage(error.message);
         setUser(jwtDecode(data.accessToken));
         localStorage.setItem("isUserLoggedIn", true);
         setIsUserLoggedIn(true);
@@ -30,7 +30,7 @@ const UserContextProvider = ({ children }) => {
 
     async function getUserInformation() {
         const [userUseroglu, err] = await getUserInfo();
-        if (err) throw setAlertMessage(err?.message);
+        if (err) throw addMessage(err?.message);
         if (userUseroglu) setUser(userUseroglu);
     }
 

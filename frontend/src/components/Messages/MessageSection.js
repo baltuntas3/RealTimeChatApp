@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useUser } from "../../context/userContext";
-import Input from "../Input";
 import { getMessagesPagination, sendMessage } from "../../services/api";
 import Title from "./Title";
 import { useMessage } from "../../context/messageContext";
@@ -152,7 +151,7 @@ export default function MessageSection({ groupId }) {
             </div>
             <div className="message-bottom">
                 <div className="message-text">
-                    <Input className="message-input" placeholder="Bir mesaj yazın..." onChange={setNewMessage}></Input>
+                    <input className="message-input" placeholder="Bir mesaj yazın..." onChange={setNewMessage}></input>
                 </div>
                 <button className="message-send-button input-button-style" onClick={handleSubmit}></button>
             </div>

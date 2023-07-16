@@ -1,0 +1,59 @@
+:root {
+    --background-color: #1a1a1a;
+    --form-background-color: #292929;
+    --title-color: #fff;
+    --input-border-color: #444;
+    --input-background-color: #333;
+    --input-text-color: #fff;
+    --button-background-color: #007bff;
+    --button-text-color: #fff;
+    --button-hover-background-color: #0056b3;
+}
+
+/*  Ak mode */
+/* :root {
+    --background-color: #f1f1f1;
+    --form-background-color: #fff;
+    --title-color: #333;
+    --input-border-color: #ccc;
+    --input-background-color: #fff;
+    --input-text-color: #333;
+    --button-background-color: #007bff;
+    --button-text-color: #fff;
+    --button-hover-background-color: #0056b3;
+  } */
+
+.dark-mode {
+    background-color: var(--form-background-color);
+    color: var(--input-text-color);
+}
+
+.register-container {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.register-form {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.register-heading {
+    text-align: center;
+}
+
+.register-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
+    cursor: pointer;
+}
+
+.register-button:hover {
+    background-color: var(--button-hover-background-color);
+}

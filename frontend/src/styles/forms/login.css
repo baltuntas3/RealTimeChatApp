@@ -1,0 +1,63 @@
+/* Renk değişkenleri */
+:root {
+    --error-color: #ff4444;
+    --background-color: #1a1a1a;
+    --form-background-color: #292929;
+    --title-color: #fff;
+    --input-border-color: #444;
+    --input-background-color: #333;
+    --input-text-color: #fff;
+    --button-background-color: #007bff;
+    --button-text-color: #fff;
+    --button-hover-background-color: #0056b3;
+}
+
+.error-field {
+    color: var(--error-color);
+    font-size: 14px;
+    margin-top: 5px;
+    background-color: rgb(150, 0, 0, 0.2);
+    padding: 10px;
+}
+
+.login-container {
+    background-color: var(--form-background-color);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-form {
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.login-heading {
+    text-align: center;
+    color: var(--title-color);
+}
+
+.input-field {
+    width: 92%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid var(--input-border-color);
+    border-radius: 4px;
+    background-color: var(--input-background-color);
+    color: var(--input-text-color);
+}
+
+.login-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--button-background-color);
+    color: var(--button-text-color);
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: var(--button-hover-background-color);
+}
