@@ -16,12 +16,12 @@ class UserService extends Service {
         });
     }
 
-    async findByUsername(username){
-        return await this.findOneBy({username:username},'-age')
+    async findByUsername(username) {
+        return await this.findOneBy({ userName: username });
     }
 
-    async findAllUsers(){
-        return await this.findAll('-password')
+    async findAllUsers() {
+        return await this.findAll("-password");
     }
 }
 

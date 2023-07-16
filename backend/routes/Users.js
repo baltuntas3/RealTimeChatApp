@@ -21,7 +21,7 @@ router.get(
     "profile/:id",
     catchErrors(async (req, res) => {
         const { id } = req.params;
-        const user = await UserService.find(id,'-password');
+        const user = await UserService.find(id, "-password");
         res.send(user);
     })
 );
@@ -71,7 +71,7 @@ router.get(
     "/get-all-users",
     verifyToken,
     catchErrors(async (req, res) => {
-        const user = await UserService.findAllUsers()
+        const user = await UserService.findAllUsers();
         res.send(user);
     })
 );
