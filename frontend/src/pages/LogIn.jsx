@@ -1,12 +1,15 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import {useState, useRef, useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 // import jwt_decode from "jwt-decode";
 // import Input from "../components/Input";
 // import { logIn } from "../services/api";
-import { useAlert } from "../context/errorMessageContext";
-import { useUser } from "../context/userContext";
+import jwtDecode from "jwt-decode";
+import {useAlert} from "../context/errorMessageContext";
 import useFormValid from "../hooks/useFormValid";
 import "../styles/forms/login.css";
+import {userInformation, websocketConnection} from "../lib/GlobalStates";
+import {useAtom, useSetAtom} from "jotai";
+import {logInUser} from "../services/api";
 
 const initialValues = {
     username: "",
@@ -15,22 +18,29 @@ const initialValues = {
 
 const validationRules = {
     username: [
-        { required: true, message: "Kullanıcı adı zorunludur." },
-        { minLength: 3, message: "Kullanıcı adı en az 3 karakter olmalıdır." },
-        { maxLength: 15, message: "Kullanıcı adı en fazla 15 karakter olabilir." },
+        {required: true, message: "Kullanıcı adı zorunludur."},
+        {minLength: 3, message: "Kullanıcı adı en az 3 karakter olmalıdır."},
+        {maxLength: 15, message: "Kullanıcı adı en fazla 15 karakter olabilir."},
     ],
     password: [
-        { required: true, message: "şifre zorunludur." },
-        { minLength: 1, message: "şifre en az 3 karakter olmalıdır." },
+        {required: true, message: "şifre zorunludur."},
+        {minLength: 1, message: "şifre en az 3 karakter olmalıdır."},
     ],
 };
 
 export default function LogIn() {
     const navigate = useNavigate();
+    const [user, setUser] = useAtom(userInformation);
+    const {addMessage} = useAlert();
+    const {values, errors, handleChange, handleSubmit} = useFormValid(initialValues, validationRules);
 
-    const { values, errors, handleChange, handleSubmit } = useFormValid(initialValues, validationRules);
-
-    const { fetchCurrentUser, user } = useUser();
+    async function fetchCurrentUser(payload) {
+        const [data, error] = await logInUser(payload);
+        if (error) return addMessage(error.message);
+        setUser(jwtDecode(data.accessToken));
+        // setIsUserLoggedIn(true);
+        navigate("/messages");
+    }
 
     const onSubmitForm = async (formData) => {
         // Form verilerini dışarı aktarma işlemi
@@ -71,7 +81,9 @@ export default function LogIn() {
                         />
                         {errors.password && <p className="error-field">{errors.password}</p>}
                     </div>
-                    <button type="submit" className="login-button">
+                    <button
+                        type="submit"
+                        className="login-button">
                         Submit
                     </button>
                 </form>

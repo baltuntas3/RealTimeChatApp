@@ -1,30 +1,29 @@
-import { useState } from "react";
+import {useState} from "react";
 
 const useFormValid = (initialValues, validationRules) => {
     const [values, setValues] = useState(initialValues);
     const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setValues((prevValues) => ({ ...prevValues, [name]: value }));
+        const {name, value} = e.target;
+        setValues((prevValues) => ({...prevValues, [name]: value}));
 
         // const newErrors = validateField(name, value, validationRules);
         // setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] || "" }));
         const newErrors = validateField(name, value, validationRules);
         if (Object.keys(newErrors).length === 0) {
-            const { [name]: _, ...restErrors } = errors;
+            const {[name]: _, ...restErrors} = errors;
             setErrors(restErrors);
         } else {
-            setErrors((prevErrors) => ({ ...prevErrors, [name]: newErrors[name] || "" }));
+            setErrors((prevErrors) => ({...prevErrors, [name]: newErrors[name] || ""}));
         }
     };
 
     const handleSubmit = (onSubmitCallback) => (e) => {
         e.preventDefault();
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         const newErrors = validateAllFields(values, validationRules);
         setErrors(newErrors);
-        console.log(newErrors, "----new", name, value, e.target);
         //Burada tekrar validate et
         if (Object.keys(newErrors).length === 0) {
             onSubmitCallback(values);
@@ -75,6 +74,6 @@ const useFormValid = (initialValues, validationRules) => {
         return formErrors;
     };
 
-    return { values, errors, handleChange, handleSubmit };
+    return {values, errors, handleChange, handleSubmit};
 };
 export default useFormValid;

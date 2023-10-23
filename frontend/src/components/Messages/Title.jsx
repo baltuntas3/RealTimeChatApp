@@ -1,13 +1,12 @@
-import { useMessage } from "../../context/messageContext";
-import { useUser } from "../../context/userContext";
+import {websocketConnection, userInformation} from "../../lib/GlobalStates";
+import {useAtomValue, useSetAtom} from "jotai";
 
-export default function Title() {
-    const { selectedGroup } = useMessage();
-    const { user } = useUser();
+export default function Title({selectedGroup}) {
+    const user = useAtomValue(userInformation);
     // const { groupName, participants } = selectedGroup;
 
     function getSenderName() {
-        return selectedGroup?.participants.filter(({ _id: userId }) => user.id !== userId)[0].userName;
+        return selectedGroup?.participants.filter(({_id: userId}) => user.id !== userId)[0].userName;
     }
 
     return (
@@ -19,7 +18,7 @@ export default function Title() {
                 </div>
                 <div className="group-users">
                     {selectedGroup &&
-                        selectedGroup.participants.map(({ userName }, id) => (
+                        selectedGroup.participants.map(({userName}, id) => (
                             <span key={id}>
                                 {id > 0 && ", "}
                                 {userName}

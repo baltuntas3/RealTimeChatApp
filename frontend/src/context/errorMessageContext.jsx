@@ -1,16 +1,18 @@
-import { createContext, useContext } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import {createContext, useContext} from "react";
+import {ToastContainer, toast} from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AlertContext = createContext();
 
-export default function AlertProvider({ children }) {
+export default function AlertProvider({children}) {
+    console.log("ERROR RENDER REDENERNENRENDE");
+
     const addMessage = (message, type = "error") => {
-        toast.error(message, { autoClose: 3000, type: type }); // 'info' | 'success' | 'warning' | 'error' | 'default';
+        toast.error(message, {autoClose: 3000, type: type}); // 'info' | 'success' | 'warning' | 'error' | 'default';
     };
 
     return (
-        <AlertContext.Provider value={{ addMessage }}>
+        <AlertContext.Provider value={{addMessage}}>
             {children}
             <ToastContainer
                 position="top-right"

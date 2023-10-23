@@ -80,6 +80,14 @@
     color: var(--secondary);
     font-size: 14px;
 }
+
+.truncate-long-texts {
+    width: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* This is where the magic happens. */
+}
+
 .new-message {
 }
 .search {

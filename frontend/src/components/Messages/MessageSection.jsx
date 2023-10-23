@@ -1,17 +1,15 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { useUser } from "../../context/userContext";
-import { getMessagesPagination, sendMessage } from "../../services/api";
+import {useState, useEffect, useRef, useCallback} from "react";
+import {getMessagesPagination, sendMessage} from "../../services/api";
 import Title from "./Title";
-import { useMessage } from "../../context/messageContext";
-import { useSocket } from "../../context/socketContext";
+import {websocketConnection, userInformation, lastMessage} from "../../lib/GlobalStates";
+import {useAtomValue, useSetAtom} from "jotai";
 
 // import Title from "./Title";
 
-export default function MessageSection({ groupId }) {
-    const { user } = useUser();
-    const { socket } = useSocket();
-
-    const { setLastMessage, selectedGroup } = useMessage();
+export default function MessageSection({selectedGroup}) {
+    const {_id: groupId} = selectedGroup;
+    const user = useAtomValue(userInformation);
+    // const setLastGroupMessage = useSetAtom(lastMessage);
 
     const messageSection = useRef(null);
     const [newMessage, setNewMessage] = useState("");
@@ -22,14 +20,12 @@ export default function MessageSection({ groupId }) {
     const [loading, setLoading] = useState(false);
 
     async function getMessages() {
-        if (groupId) {
-            setLoading(true);
-            const payload = { groupId: groupId, pageNumber: 1, nPerPage: 30 };
-            const [getMessagesData, error] = await getMessagesPagination(payload);
+        setLoading(true);
+        const payload = {groupId: groupId, pageNumber: 1, nPerPage: 30};
+        const [getMessagesData, error] = await getMessagesPagination(payload);
 
-            if (!error) setConversations(getMessagesData.reverse());
-            setLoading(false);
-        }
+        if (!error) setConversations(getMessagesData.reverse());
+        setLoading(false);
     }
 
     const scrollEvent = useCallback((e) => {
@@ -62,7 +58,7 @@ export default function MessageSection({ groupId }) {
     }, [loading]);
 
     useEffect(() => {
-        socket.current.on("getGroupMessage", (obj) => {
+        websocketConnection.on("getGroupMessage", (obj) => {
             setArrivalMessage({
                 senderId: obj.senderId,
                 message: obj.message,
@@ -81,13 +77,12 @@ export default function MessageSection({ groupId }) {
         const [send, err] = await sendMessage(messageBuilder);
         if (!err) setConversations([...conversations, send]);
         // const receiverId = currentChat.participants.find((member) => member._id !== user.id);
-        socket.current.emit("sendGroupMessage", messageBuilder);
-        setLastMessage(messageBuilder);
+        websocketConnection.emit("sendGroupMessage", messageBuilder);
     }
 
     function setScrollPos() {
         const that = messageSection.current;
-        that.scrollTo({ top: that.scrollHeight });
+        that.scrollTo({top: that.scrollHeight});
     }
 
     useEffect(() => {
@@ -97,7 +92,7 @@ export default function MessageSection({ groupId }) {
 
     async function onPageChange() {
         if (groupId && scrollable) {
-            const payload = { groupId: groupId, pageNumber: pageNumber, nPerPage: 30 };
+            const payload = {groupId: groupId, pageNumber: pageNumber, nPerPage: 30};
             const [getMessagesData, error] = await getMessagesPagination(payload);
             if (!error && getMessagesData.length && pageNumber > 1) {
                 setConversations((prev) => [...getMessagesData.reverse(), ...prev]);
@@ -108,24 +103,26 @@ export default function MessageSection({ groupId }) {
     }
 
     function getUserNameSenderGroupMember(participants = [], participantId) {
-        return participants[participants.findIndex(({ _id }) => _id === participantId)].userName;
+        return participants[participants.findIndex(({_id}) => _id === participantId)].userName;
     }
 
     return (
         <>
-            <Title></Title>
-            {/* <div className="message-section-background"></div> */}
-            <div className="message-section" ref={messageSection}>
+            <Title selectedGroup={selectedGroup}></Title>
+            <div
+                className="message-section"
+                ref={messageSection}>
                 {conversations.map((val, id) => {
-                    const { sender, message } = val;
+                    const {sender, message} = val;
                     return sender === user.id ? (
-                        <div key={id} className="message ">
+                        <div
+                            key={id}
+                            className="message ">
                             <div className="message-content sender">
                                 {selectedGroup.participants.length > 2 && (
                                     <p
                                         className="message-sender-name"
-                                        style={{ color: `#${sender.substring(sender?.length - 4)}0F` }}
-                                    >
+                                        style={{color: `#${sender.substring(sender?.length - 4)}0F`}}>
                                         {getUserNameSenderGroupMember(selectedGroup?.participants, sender)}
                                     </p>
                                 )}
@@ -133,13 +130,14 @@ export default function MessageSection({ groupId }) {
                             </div>
                         </div>
                     ) : (
-                        <div key={id} className="message ">
+                        <div
+                            key={id}
+                            className="message ">
                             <div className="message-content receiver">
                                 {selectedGroup.participants.length > 2 && (
                                     <p
                                         className="message-receiver-name"
-                                        style={{ color: `#${sender.substring(sender?.length - 4)}FF` }}
-                                    >
+                                        style={{color: `#${sender.substring(sender?.length - 4)}FF`}}>
                                         {getUserNameSenderGroupMember(selectedGroup?.participants, sender)}
                                     </p>
                                 )}
@@ -151,9 +149,14 @@ export default function MessageSection({ groupId }) {
             </div>
             <div className="message-bottom">
                 <div className="message-text">
-                    <input className="message-input" placeholder="Bir mesaj yazın..." onChange={setNewMessage}></input>
+                    <input
+                        className="message-input"
+                        placeholder="Bir mesaj yazın..."
+                        onChange={setNewMessage}></input>
                 </div>
-                <button className="message-send-button input-button-style" onClick={handleSubmit}></button>
+                <button
+                    className="message-send-button input-button-style"
+                    onClick={handleSubmit}></button>
             </div>
         </>
     );

@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { registerUser } from "../services/api";
-import { useNavigate } from "react-router";
-import { useUser } from "../context/userContext";
-import { useAlert } from "../context/errorMessageContext";
+import {useEffect, useState} from "react";
+import {registerUser} from "../services/api";
+import {useNavigate} from "react-router";
+import {useAlert} from "../context/errorMessageContext";
 import "../styles/forms/register.css";
 import useFormValid from "../hooks/useFormValid";
+import {useAtomValue} from "jotai";
+import {userInformation} from "../lib/GlobalStates";
 // import Alert from "../components/Alert";
 
 const initialValues = {
@@ -16,13 +17,13 @@ const initialValues = {
 
 const validationRules = {
     username: [
-        { required: true },
-        { minLength: 3, message: "Kullanıcı adı en az 3 karakter olmalıdır." },
-        { maxLength: 15, message: "Kullanıcı adı en fazla 15 karakter olabilir." },
+        {required: true},
+        {minLength: 3, message: "Kullanıcı adı en az 3 karakter olmalıdır."},
+        {maxLength: 15, message: "Kullanıcı adı en fazla 15 karakter olabilir."},
     ],
-    password: [{ required: true }, { minLength: 1, message: "şifre en az 3 karakter olmalıdır." }],
-    email: [{ required: true }, { minLength: 1, message: "şifre en az 3 karakter olmalıdır." }],
-    age: [{ required: true }, { minLength: 1, message: "şifre en az 3 karakter olmalıdır." }],
+    password: [{required: true}, {minLength: 1, message: "şifre en az 3 karakter olmalıdır."}],
+    email: [{required: true}, {minLength: 1, message: "şifre en az 3 karakter olmalıdır."}],
+    age: [{required: true}, {minLength: 1, message: "şifre en az 3 karakter olmalıdır."}],
 };
 
 // const [data, err] = await registerUser(form);
@@ -36,13 +37,15 @@ const Register = () => {
     // const [alert, setAlert] = useState("");
     const navigate = useNavigate();
 
-    const { values, errors, handleChange, handleSubmit } = useFormValid(initialValues, validationRules);
+    const {values, errors, handleChange, handleSubmit} = useFormValid(initialValues, validationRules);
 
-    const { user } = useUser();
-    const { addMessage } = useAlert();
+    const user = useAtomValue(userInformation);
+    const {addMessage} = useAlert();
 
     const onSubmitForm = async (formData) => {
         // Form verilerini dışarı aktarma işlemi
+        const [data, err] = await registerUser(formData);
+        if (err) return addMessage(err.message);
         console.log(formData);
     };
 
@@ -107,7 +110,9 @@ const Register = () => {
                         {errors.password && <p className="error-field">{errors.password}</p>}
                     </div>
 
-                    <button type="submit" className="register-button">
+                    <button
+                        type="submit"
+                        className="register-button">
                         Kayıt Ol
                     </button>
                 </form>

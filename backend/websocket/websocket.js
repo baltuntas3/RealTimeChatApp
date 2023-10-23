@@ -1,14 +1,14 @@
 //socket.io
 const http = require("http");
 const server = http.createServer();
-const { Server } = require("socket.io");
+const {Server} = require("socket.io");
 const io = new Server(server, {
-    cors: { origin: "*" },
+    cors: {origin: "*"},
 });
 
 let users = [];
 const filterUsers = (userId, socketId) => {
-    !users.some((user) => user.userId === userId) && users.push({ userId, socketId });
+    !users.some((user) => user.userId === userId) && users.push({userId, socketId});
 };
 
 const disconnectUser = (socketId) => {
@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         disconnectUser(socket.id);
         io.emit("getUsers", users);
-        console.log("a user disconnect.");
+        console.log(socket.id + "a user disconnect.");
     });
 
     socket.on("joinGroup", (groupId) => {
@@ -42,7 +42,7 @@ io.on("connection", (socket) => {
         socket.leave(groupId);
     });
 
-    socket.on("sendGroupMessage", ({ senderId, groupId, message, createdAt }) => {
+    socket.on("sendGroupMessage", ({senderId, groupId, message, createdAt}) => {
         socket.to(groupId).emit("getGroupMessage", {
             groupId: groupId,
             senderId: senderId,

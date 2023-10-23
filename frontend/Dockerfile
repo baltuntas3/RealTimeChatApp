@@ -8,11 +8,15 @@ RUN npm install
 
 COPY . .
 
-ARG REACT_APP_BASE_URL
+ARG VAR_BACKEND_BASE_URL
+
+ARG ENVIRONMENT=prod
+
+ENV MODE=${ENVIRONMENT}
 
 EXPOSE 3000
 
-RUN npm run build
+RUN  npm run $MODE
 
 
 
