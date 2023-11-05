@@ -1,71 +1,63 @@
-import {useEffect, useState} from "react";
-import {getLastMessageInGroup} from "../../services/api";
-import {userInformation, websocketConnection, lastMessage} from "../../lib/GlobalStates";
-import {useAtomValue, useAtom} from "jotai";
-import {formatDate} from "../../helpers/DateFormatter";
+// import {useEffect, useState} from "react";
+// import {getLastMessageInGroup} from "../../services/api";
+// import {userInformation, websocketConnection, lastMessage} from "../../lib/GlobalStates";
+// import {useAtomValue, useAtom} from "jotai";
 
-export default function Groups({groups, id}) {
-    const [lastGroupMessage, setLastMessage] = useAtom(lastMessage);
-
-    // getLastMessageInGroup
-    const {_id, groupName} = groups;
-    const user = useAtomValue(userInformation);
-
-    const [getCreatedAt, setCreatedAt] = useState(null);
-
-    async function getLastMessage() {
-        const [getMessage, error] = await getLastMessageInGroup(_id);
-
-        if (!error) {
-            setLastMessage(getMessage);
-            setCreatedAt(getMessage.createdAt);
-        }
+import ReactTimeAgo from "react-time-ago";
+export default function Groups({groups, handleSelectGroup}) {
+    function isMoreThanTwoParticipants(participants) {
+        return participants.length > 2;
     }
 
-    useEffect(() => {
-        //getGroupMessage
-        getLastMessage();
-        // eslint-disable-next-line
-    }, []);
-
-    useEffect(() => {
-        websocketConnection.on("getGroupMessage", (message) => {
-            setLastMessage(message);
-            // setLocalLastMessage(message);
-            // console.log(message, "---------mesaj mesajoğlu---********/////////////////");
-        });
-        // eslint-disable-next-line
-    }, []);
-
-    function getSenderName() {
-        return groups?.participants.filter(({_id: userId}) => user.id !== userId)[0].userName;
-    }
+    console.log(groups);
 
     return (
-        <div
-            className="group-container"
-            tabIndex={id}>
-            {groups.participants.length > 2 ? (
-                <div className="profile-photo profile-photo-group"></div>
-            ) : (
-                <div className="profile-photo"></div>
-            )}
-
-            <div className="group-description">
-                <div className="group-title">
-                    {groups.participants.length > 2 ? groupName : getSenderName()}
-
-                    <div className="group-last-message group-date">
-                        {lastGroupMessage?.groupId === _id
-                            ? formatDate(lastGroupMessage.createdAt)
-                            : formatDate(getCreatedAt)}
-                    </div>
-                </div>
-                <div className="group-last-message truncate-long-texts">
-                    <span className="group-check"></span>
-                    {lastGroupMessage?.message}
-                </div>
-            </div>
+        <div className="group-container">
+            {groups &&
+                groups.map(
+                    (
+                        {
+                            participants,
+                            lastMessage: {
+                                message: lastMessage,
+                                sender: {userName: senderName},
+                                createdAt,
+                            },
+                            groupName,
+                            _id: groupId,
+                        },
+                        id
+                    ) => {
+                        return (
+                            <div
+                                className="group-description"
+                                key={id}
+                                tabIndex={id + 1}
+                                onClick={() => {
+                                    // setDeneme(groups[id]);
+                                    handleSelectGroup(groups[id]);
+                                }}>
+                                <div
+                                    className={`profile-photo ${
+                                        isMoreThanTwoParticipants(participants) && "profile-photo-group"
+                                    }`}></div>
+                                <div className="group-title">
+                                    {isMoreThanTwoParticipants(participants) ? groupName : senderName}
+                                    <div className="group-last-message group-date">
+                                        <ReactTimeAgo
+                                            date={Date.now() - (Date.now() - new Date(createdAt).getTime())}
+                                            locale="tr"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="group-last-message truncate-long-texts">
+                                    {isMoreThanTwoParticipants(participants) && senderName} {lastMessage}
+                                    <span className="group-check"></span>
+                                </div>
+                            </div>
+                        );
+                    }
+                )}
         </div>
     );
 }

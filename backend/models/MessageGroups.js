@@ -6,11 +6,13 @@ const MessageGroupsSchema = new mongoose.Schema(
             {
                 type: mongoose.SchemaTypes.ObjectId,
                 ref: "User",
-        autopopulate: { select: 'userName',maxDepth:1 }
-
+                autopopulate: {select: "userName", maxDepth: 1},
             },
         ],
-        groupName: String,
+        groupName: {
+            type: String,
+            required: true,
+        },
     },
     {
         timestamps: true,

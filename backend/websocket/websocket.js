@@ -20,7 +20,7 @@ const disconnectUser = (socketId) => {
 // };
 io.on("connection", (socket) => {
     socket.on("addUser", (getUserId) => {
-        console.log("a user connected.");
+        console.log(" a user connected.");
         // if (getUserId) {
         filterUsers(getUserId, socket.id);
         io.emit("getUsers", users);
@@ -31,7 +31,7 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         disconnectUser(socket.id);
         io.emit("getUsers", users);
-        console.log(socket.id + "a user disconnect.");
+        console.log(socket.id + " a user disconnect.");
     });
 
     socket.on("joinGroup", (groupId) => {
@@ -43,19 +43,12 @@ io.on("connection", (socket) => {
     });
 
     socket.on("sendGroupMessage", ({senderId, groupId, message, createdAt}) => {
-        socket.to(groupId).emit("getGroupMessage", {
+        io.in(groupId).emit("getGroupMessage", {
             groupId: groupId,
             senderId: senderId,
             message: message,
             createdAt: createdAt,
         });
-
-        //     if (getUserById(receiverId)) {
-        //         const { socketId } = getUserById(receiverId);
-        //         io.to(socketId).emit("getPrivateMessage", {
-        //             senderId,
-        //             message,
-        //         });
     });
 });
 

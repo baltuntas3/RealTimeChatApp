@@ -4,13 +4,11 @@ import Title from "./Title";
 import {websocketConnection, userInformation, lastMessage} from "../../lib/GlobalStates";
 import {useAtomValue, useSetAtom} from "jotai";
 
-// import Title from "./Title";
-
-export default function MessageSection({selectedGroup}) {
+export default function MessageSection({selectedGroup, handleLastMessage}) {
     const {_id: groupId} = selectedGroup;
     const user = useAtomValue(userInformation);
-    // const setLastGroupMessage = useSetAtom(lastMessage);
-
+    // const setLastMessage = useSetAtom(lastMessage);
+    // const [lastMessage, setLastMessage] = useState(null);
     const messageSection = useRef(null);
     const [newMessage, setNewMessage] = useState("");
     const [arrivalMessage, setArrivalMessage] = useState(undefined);
@@ -60,29 +58,36 @@ export default function MessageSection({selectedGroup}) {
     useEffect(() => {
         websocketConnection.on("getGroupMessage", (obj) => {
             setArrivalMessage({
-                senderId: obj.senderId,
+                sender: {_id: obj.senderId},
                 message: obj.message,
+                createdAt: obj.createdAt,
             });
+            // setLastMessage(obj.message);
         });
         // eslint-disable-next-line
     }, []);
 
     async function handleSubmit(e) {
         const messageBuilder = {
-            senderId: user.id,
+            senderId: user._id,
             groupId: groupId,
-            message: newMessage.target.value,
+            message: newMessage,
             createdAt: new Date().toJSON(),
         };
-        const [send, err] = await sendMessage(messageBuilder);
-        if (!err) setConversations([...conversations, send]);
-        // const receiverId = currentChat.participants.find((member) => member._id !== user.id);
+        sendMessage(messageBuilder);
+        setNewMessage("");
         websocketConnection.emit("sendGroupMessage", messageBuilder);
     }
 
     function setScrollPos() {
         const that = messageSection.current;
         that.scrollTo({top: that.scrollHeight});
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === "Enter") {
+            handleSubmit();
+        }
     }
 
     useEffect(() => {
@@ -113,32 +118,20 @@ export default function MessageSection({selectedGroup}) {
                 className="message-section"
                 ref={messageSection}>
                 {conversations.map((val, id) => {
-                    const {sender, message} = val;
-                    return sender === user.id ? (
+                    const {
+                        sender: {_id: senderId, userName: senderUsername},
+                        message,
+                    } = val;
+                    return (
                         <div
                             key={id}
                             className="message ">
-                            <div className="message-content sender">
+                            <div className={`message-content ${senderId === user._id ? "sender" : "receiver"}`}>
                                 {selectedGroup.participants.length > 2 && (
                                     <p
                                         className="message-sender-name"
-                                        style={{color: `#${sender.substring(sender?.length - 4)}0F`}}>
-                                        {getUserNameSenderGroupMember(selectedGroup?.participants, sender)}
-                                    </p>
-                                )}
-                                {message}
-                            </div>
-                        </div>
-                    ) : (
-                        <div
-                            key={id}
-                            className="message ">
-                            <div className="message-content receiver">
-                                {selectedGroup.participants.length > 2 && (
-                                    <p
-                                        className="message-receiver-name"
-                                        style={{color: `#${sender.substring(sender?.length - 4)}FF`}}>
-                                        {getUserNameSenderGroupMember(selectedGroup?.participants, sender)}
+                                        style={{color: `#${senderId.slice(8, 8 + 6)}`}}>
+                                        {getUserNameSenderGroupMember(selectedGroup?.participants, senderId)}
                                     </p>
                                 )}
                                 {message}
@@ -151,8 +144,10 @@ export default function MessageSection({selectedGroup}) {
                 <div className="message-text">
                     <input
                         className="message-input"
+                        value={newMessage}
                         placeholder="Bir mesaj yazın..."
-                        onChange={setNewMessage}></input>
+                        onKeyDown={handleKeyDown}
+                        onChange={(e) => setNewMessage(e.target.value)}></input>
                 </div>
                 <button
                     className="message-send-button input-button-style"

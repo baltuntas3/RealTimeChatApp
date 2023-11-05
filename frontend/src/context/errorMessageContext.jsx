@@ -5,8 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 const AlertContext = createContext();
 
 export default function AlertProvider({children}) {
-    console.log("ERROR RENDER REDENERNENRENDE");
-
+    //TODO addToastifyMessage yap adını
     const addMessage = (message, type = "error") => {
         toast.error(message, {autoClose: 3000, type: type}); // 'info' | 'success' | 'warning' | 'error' | 'default';
     };

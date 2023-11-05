@@ -46,6 +46,7 @@ const Register = () => {
         // Form verilerini dışarı aktarma işlemi
         const [data, err] = await registerUser(formData);
         if (err) return addMessage(err.message);
+        addMessage("Kayıt Başarılı!");
         console.log(formData);
     };
 

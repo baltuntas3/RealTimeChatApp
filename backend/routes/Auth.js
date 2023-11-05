@@ -29,7 +29,7 @@ router.post(
         const tokens = await AuthenticationService.setTokens(user);
 
         if (tokens) {
-            const {accessToken, refreshToken} = tokens;
+            const [accessToken, refreshToken] = tokens;
             res.cookie("accessToken", accessToken, {
                 httpOnly: true,
                 secure: true,
@@ -60,7 +60,7 @@ router.get(
             const tokens = await AuthenticationService.setTokens(userInformation);
 
             if (tokens) {
-                const {accessToken, refreshToken} = tokens;
+                const [accessToken, refreshToken] = tokens;
                 res.cookie("accessToken", accessToken, {
                     httpOnly: true,
                     secure: true,
