@@ -9,10 +9,8 @@ export default function Groups({groups, handleSelectGroup}) {
         return participants.length > 2;
     }
 
-    console.log(groups);
-
     return (
-        <div className="group-container">
+        <>
             {groups &&
                 groups.map(
                     (
@@ -30,34 +28,38 @@ export default function Groups({groups, handleSelectGroup}) {
                     ) => {
                         return (
                             <div
-                                className="group-description"
-                                key={id}
+                                className="group-container"
                                 tabIndex={id + 1}
+                                key={id}
                                 onClick={() => {
                                     // setDeneme(groups[id]);
                                     handleSelectGroup(groups[id]);
                                 }}>
-                                <div
-                                    className={`profile-photo ${
-                                        isMoreThanTwoParticipants(participants) && "profile-photo-group"
-                                    }`}></div>
-                                <div className="group-title">
-                                    {isMoreThanTwoParticipants(participants) ? groupName : senderName}
-                                    <div className="group-last-message group-date">
-                                        <ReactTimeAgo
-                                            date={Date.now() - (Date.now() - new Date(createdAt).getTime())}
-                                            locale="tr"
-                                        />
-                                    </div>
+                                <div>
+                                    <div
+                                        className={`profile-photo ${
+                                            isMoreThanTwoParticipants(participants) ? "profile-photo-group" : ""
+                                        } group-profile-photo`}></div>
                                 </div>
-                                <div className="group-last-message truncate-long-texts">
-                                    {isMoreThanTwoParticipants(participants) && senderName} {lastMessage}
-                                    <span className="group-check"></span>
+                                <div className="group-message-section">
+                                    <div>
+                                        {isMoreThanTwoParticipants(participants) ? groupName : senderName}
+                                        <div className="group-last-message">
+                                            <ReactTimeAgo
+                                                date={Date.now() - (Date.now() - new Date(createdAt).getTime())}
+                                                locale="tr"
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className="group-last-message truncate-long-texts">
+                                        {isMoreThanTwoParticipants(participants) && senderName} {lastMessage}
+                                        <span className="group-check"></span>
+                                    </div>
                                 </div>
                             </div>
                         );
                     }
                 )}
-        </div>
+        </>
     );
 }

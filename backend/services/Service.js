@@ -1,29 +1,29 @@
 module.exports = class Service {
-    async findAll(exceptFields) {
+    findAll(exceptFields) {
         return this.model.find({}, exceptFields);
     }
 
-    async add(item) {
+    add(item) {
         return this.model.create(item);
     }
 
-    async del(documentId) {
-        return this.model.remove({ _id: documentId });
+    del(documentId) {
+        return this.model.remove({_id: documentId});
     }
 
-    async find(documentId, exceptFields) {
+    find(documentId, exceptFields) {
         return this.model.findById(documentId, exceptFields);
     }
     //This function in the wrong place
-    async findOneBy(condition, exceptFields) {
+    findOneBy(condition, exceptFields) {
         return this.model.findOne(condition, exceptFields);
     }
 
-    async query(object, exceptFields) {
+    query(object, exceptFields) {
         return this.model.find(object, exceptFields);
     }
 
-    async queryPagination(findByObject, pageNumber, nPerPage, sort = { createdAt: -1 }, exceptFields) {
+    queryPagination(findByObject, pageNumber, nPerPage, sort = {createdAt: -1}, exceptFields) {
         return this.model
             .find(findByObject, exceptFields)
             .sort(sort)
@@ -31,15 +31,15 @@ module.exports = class Service {
             .limit(nPerPage);
     }
 
-    async queryOne(object) {
+    queryOne(object) {
         return this.model.findOne(object);
     }
 
-    async findLastItem(object) {
-        return this.model.find(object).sort({ createdAt: -1 }).limit(1);
+    findLastItem(object) {
+        return this.model.find(object).sort({createdAt: -1}).limit(1);
     }
 
-    async update(documentId, set) {
-        return this.model.update(documentId, set, { upsert: true });
+    update(documentId, set) {
+        return this.model.update(documentId, set, {upsert: true});
     }
 };

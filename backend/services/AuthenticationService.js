@@ -1,11 +1,3 @@
-/**
- * 1. Giriş yapıldığında Access ve Refresh token verilecek. V
- * 2. Access token süresi bitince refresh token ile yeni access token ve refresh token alınacak(Refresh token rotation).(httpOnly cookie) V
- * 4. Refresh tokenlar için blacklist yapılacak(Refresh token rotation).
- * 5. Kullanılan refresh token ile bir istek geldiğinde access token inactive olacak.
- * 6. id token eklenebilir(Kişi bilgilerini içeren token).
- * 7. CSRF Token ekle SameSite=strict olacak şekilde cookie koy httpOnly
- */
 const bcrypt = require("bcrypt");
 const UserService = require("./UserService");
 const TokenHelper = require("../library/TokenHelper");
@@ -26,14 +18,15 @@ class AuthenticationService {
         }
     }
 
-    async setTokens(payload) {
-        const {userName, _id} = payload;
-        const tokenPayload = {userName, _id: _id.toString()};
+    async generateAccessAndRefreshTokensFromUser(userPayload) {
+        const {userName, _id} = userPayload;
+        const user = {userName, _id: _id.toString()};
 
-        const accessTokenPromise = TokenHelper.generateAccessToken(tokenPayload);
-        const refreshTokenPromise = TokenHelper.generateRefreshToken(tokenPayload);
+        const accessToken = TokenHelper.generateAccessToken(user);
+        const refreshToken = TokenHelper.generateRefreshToken(user);
+        const [accessTokenResolved, refresTokenResolved] = await Promise.all([accessToken, refreshToken]);
 
-        return Promise.all([accessTokenPromise, refreshTokenPromise]);
+        return {accessToken: accessTokenResolved, refreshToken: refresTokenResolved};
     }
 
     passwordChecker(formPassword, password) {

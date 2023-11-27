@@ -6,7 +6,7 @@ function errorHandler(err, req, res, next) {
     if (err.name == "ForbiddenException") statusCode = 403;
     // return next(new AuthException(res.locals.t("authException")));
 
-    const errorMessage = res.locals.t(err.message);
+    const errorMessage = res.locals.t(err.message) || "Somenthing went wrong!";
     const now = Date.now();
     const timestamp = new Date(now);
     const errorMessages = {

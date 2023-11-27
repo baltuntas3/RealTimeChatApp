@@ -9,7 +9,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import HomeLayout from "./layouts/HomeLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import Page404 from "./pages/Page404";
-import {logout, getUserInfo} from "./services/api";
+import {logout, getUserInfo} from "./services/Api";
 import {onlineUsers, userInformation, websocketConnection} from "./lib/GlobalStates";
 import {useAtom, useAtomValue, useSetAtom} from "jotai";
 import {useEffect, useState} from "react";
@@ -54,6 +54,7 @@ function App() {
 
     return (
         <div className="wrapper">
+            {/* <div className="container"> */}
             <Routes>
                 <Route
                     path="/"
@@ -89,6 +90,7 @@ function App() {
                     element={<Page404 />}
                 />
             </Routes>
+            {/* </div> */}
         </div>
     );
 }

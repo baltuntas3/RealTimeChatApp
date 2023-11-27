@@ -11,6 +11,7 @@ const {errorHandler} = require("./middlewares/ErrorHandler");
 const I18n = require("./locales/SimpleI18n");
 const cookieParser = require("cookie-parser");
 const verifyToken = require("./middlewares/Auth");
+const helmet = require("helmet");
 // i18n.loadTranslations("./translations"); // use this as a middleware
 const app = express();
 const server = http.createServer(
@@ -20,7 +21,7 @@ const server = http.createServer(
     // },
     app
 );
-// app.use(helmet());
+app.use(helmet());
 app.use(cookieParser());
 app.use(
     cors({

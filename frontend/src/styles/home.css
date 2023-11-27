@@ -1,0 +1,9 @@
+.online-users-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.home-wrapper {
+    display: flex;
+    flex-direction: column;
+}

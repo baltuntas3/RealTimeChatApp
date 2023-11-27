@@ -1,62 +1,31 @@
 const jwt = require("jsonwebtoken");
+const {promisify} = require("util");
 const {ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME, REFRESH_TOKEN_EXPIRE_TIME} = process.env;
-
+//Promisify kullandım çünkü callbackler ile Promiseler karıştırılmamalı. Bu işi en doğru şekilde promisify yapıyor.
 class TokenHelper {
-    promiseSign(payload, secret, expireTime) {
-        return new Promise((resolve, reject) => {
-            jwt.sign(payload, secret, {expiresIn: expireTime}, function (err, token) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(token);
-                }
-            });
-        });
+    signKey(token, secret, expireTime) {
+        return promisify(jwt.sign)(token, secret, {expiresIn: expireTime});
     }
 
-    generateAccessToken(payload) {
-        return this.promiseSign(payload, ACCESS_SECRET_KEY, TOKEN_EXPIRE_TIME);
+    generateAccessToken(token) {
+        return this.signKey(token, ACCESS_SECRET_KEY, TOKEN_EXPIRE_TIME);
     }
 
-    generateRefreshToken(payload) {
-        return this.promiseSign(payload, REFRESH_TOKEN_SECRET_KEY, REFRESH_TOKEN_EXPIRE_TIME);
+    generateRefreshToken(token) {
+        return this.signKey(token, REFRESH_TOKEN_SECRET_KEY, REFRESH_TOKEN_EXPIRE_TIME);
     }
 
     verifyRefreshToken(token) {
-        return new Promise((resolve, reject) => {
-            jwt.verify(token, REFRESH_TOKEN_SECRET_KEY, function (err, token) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(token);
-                }
-            });
-        });
+        return this.verifyTokenAsync(token, REFRESH_TOKEN_SECRET_KEY);
+    }
+
+    verifyTokenAsync(token, secret) {
+        return promisify(jwt.verify)(token, secret);
     }
 
     verifyAccessToken(token) {
-        return new Promise((resolve, reject) => {
-            jwt.verify(token, ACCESS_SECRET_KEY, function (err, token) {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(token);
-                }
-            });
-        });
+        return this.verifyTokenAsync(token, ACCESS_SECRET_KEY);
     }
-
-    // decodeToken(token){
-    //     return new Promise((resolve, reject) => {
-    //         jwt.decode(token, secret, function (err, token) {
-    //             if (err) {
-    //                 reject(err);
-    //             } else {
-    //                 resolve(token);
-    //             }
-    //         });
-    //     });
-    // }
 }
 
 module.exports = new TokenHelper();

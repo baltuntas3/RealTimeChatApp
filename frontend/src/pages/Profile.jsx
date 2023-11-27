@@ -5,7 +5,7 @@ export default function ProfilePage() {
     const user = useAtomValue(userInformation);
 
     return (
-        <div>
+        <div className="container">
             {user && (
                 <>
                     Profile

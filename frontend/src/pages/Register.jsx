@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {registerUser} from "../services/api";
+import {registerUser} from "../services/Api";
 import {useNavigate} from "react-router";
 import {useAlert} from "../context/errorMessageContext";
 import "../styles/forms/register.css";

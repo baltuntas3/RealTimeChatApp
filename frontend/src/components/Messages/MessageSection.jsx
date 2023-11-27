@@ -1,5 +1,5 @@
 import {useState, useEffect, useRef, useCallback} from "react";
-import {getMessagesPagination, sendMessage} from "../../services/api";
+import {getMessagesPagination, sendMessage} from "../../services/Api";
 import Title from "./Title";
 import {websocketConnection, userInformation, lastMessage} from "../../lib/GlobalStates";
 import {useAtomValue, useSetAtom} from "jotai";
@@ -149,9 +149,11 @@ export default function MessageSection({selectedGroup, handleLastMessage}) {
                         onKeyDown={handleKeyDown}
                         onChange={(e) => setNewMessage(e.target.value)}></input>
                 </div>
-                <button
-                    className="message-send-button input-button-style"
-                    onClick={handleSubmit}></button>
+                <div className="message-button-wrapper">
+                    <button
+                        className="message-send-button input-button-style"
+                        onClick={handleSubmit}></button>
+                </div>
             </div>
         </>
     );

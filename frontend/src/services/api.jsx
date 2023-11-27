@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const {VAR_BACKEND_BASE_URL} = import.meta.env;
-
+let isRefreshing = false;
 axios.defaults.baseURL = VAR_BACKEND_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
@@ -10,21 +10,25 @@ axios.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
-
-        // Hata 401 ise ve orijinal istek refresh token ile yapılmamışsa
         if (error.response.status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            const [refreshResponse, err] = await handleGetRequest("/auth/refresh-token");
-            if (err) {
-                // await handleGetRequest("/auth/logout");
-                return (window.location.href = "/auth/login");
-                // return Promise.reject(error);
+            if (isRefreshing) {
+                isRefreshing = false;
+                return axios(originalRequest);
             }
-            if (refreshResponse) return axios(originalRequest);
+
+            originalRequest._retry = true;
+            isRefreshing = true;
+
+            // Yeni bir refresh token isteği gönderir
+            const [refreshToken, err] = await handleGetRequest("/auth/refresh-token");
+
+            if (err) return (window.location.href = "/auth/login");
+
+            if (refreshToken) return axios(originalRequest);
+
             return Promise.reject(error);
         }
 
-        // Diğer hata durumlarında ya da refresh denemesinde hata
         return Promise.reject(error);
     }
 );

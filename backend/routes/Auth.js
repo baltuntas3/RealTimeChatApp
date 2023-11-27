@@ -2,9 +2,11 @@ const express = require("express");
 const router = express.Router();
 const {AuthenticationService} = require("../services/AllServices");
 const verifyToken = require("../middlewares/Auth");
-const AuthException = require("../exceptions/AuthException");
 const {catchErrors} = require("../middlewares/ErrorHandler");
 const TokenHelper = require("../library/TokenHelper");
+const CookieGenerator = require("../library/CookieGenerator");
+const refreshTokenBlackList = require("../library/RefreshTokenBlackList");
+const ForbiddenException = require("../exceptions/ForbiddenException");
 
 router.get("/logout", (req, res) => {
     res.clearCookie("token");
@@ -15,73 +17,43 @@ router.get("/logout", (req, res) => {
 router.post(
     "/sign-in",
     catchErrors(async (req, res, next) => {
-        const user = await AuthenticationService.signIn(req.body);
+        await AuthenticationService.signIn(req.body);
         res.sendStatus(200);
     })
 );
 
-router.post(
-    "/login",
-    catchErrors(async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
+    try {
         const userInformation = {username: req.body.username, password: req.body.password};
 
         const user = await AuthenticationService.login(userInformation);
-        const tokens = await AuthenticationService.setTokens(user);
+        const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(user);
+        CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
 
-        if (tokens) {
-            const [accessToken, refreshToken] = tokens;
-            res.cookie("accessToken", accessToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-            });
-            res.cookie("refreshToken", refreshToken, {
-                httpOnly: true,
-                secure: true,
-                sameSite: "none",
-            });
-            return res.send({accessToken});
-        }
-
-        return next(new AuthException(res.locals.t("userPass")));
-    })
-);
+        return res.send(tokens);
+    } catch (error) {
+        return next(new Error(res.locals.t("userPass")));
+    }
+});
 
 router.get(
     "/refresh-token",
     catchErrors(async (req, res, next) => {
-        try {
-            const refreshToken =
-                (req.headers["authorization"] && req.headers["authorization"].split(" ")[1]) ||
-                req.cookies.refreshToken;
-            if (!refreshToken) return next("Invalid Token: " + err.message);
+        const refreshToken =
+            (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.refreshToken;
+        if (!refreshToken) return next(new ForbiddenException("Invalid Token!"));
+        if (refreshTokenBlackList.isBlacklisted(refreshToken)) return next(new ForbiddenException("Invalid Token!"));
 
-            const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
-            const tokens = await AuthenticationService.setTokens(userInformation);
-
-            if (tokens) {
-                const [accessToken, refreshToken] = tokens;
-                res.cookie("accessToken", accessToken, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: "none",
-                });
-                res.cookie("refreshToken", refreshToken, {
-                    httpOnly: true,
-                    secure: true,
-                    sameSite: "none",
-                });
-                return res.sendStatus(200);
-            }
-        } catch (error) {
-            return next(new Error("Something went wrong!"));
-        }
+        const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
+        refreshTokenBlackList.addToBlacklist(refreshToken);
+        const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(userInformation);
+        CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
+        return res.sendStatus(200);
     })
 );
 
 router.get("/get-user-info", verifyToken, (req, res, next) => {
-    if (req.user) return res.send(req.user);
-    return next(new AuthException(res.locals.t("authException")));
+    return res.send(req.user);
 });
 
 module.exports = router;

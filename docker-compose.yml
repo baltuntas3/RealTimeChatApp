@@ -6,7 +6,7 @@ services:
             - 80:80
             - 443:443
         environment:
-            REACT_APP_BASE_URL: "http://localhost"
+            VAR_BASE_URL: "http://localhost"
             GENERATE_SOURCEMAP: false
         links:
             - "backend"
@@ -14,24 +14,6 @@ services:
         build: backend
         environment:
             MONGO_CONNECTION: ""
-            REDIS_CONNECTION: "redis://default@redis:6379"
         ports:
             - 5000:5000
             - 3005:3005
-        depends_on:
-            - redis
-            # - mongodb
-
-    # mongodb:
-    #     image: mongo
-    #     ports:
-    #         - 37017:27017
-    #     volumes:
-    #         - ./data:/data/db
-    redis:
-        image: redis:alpine
-        ports:
-            - 6379:6379
-    # environment:
-    #     - ALLOW_EMPTY_PASSWORD=yes
-    #     - REDIS_PASSWORD=123

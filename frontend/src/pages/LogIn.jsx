@@ -9,7 +9,7 @@ import useFormValid from "../hooks/useFormValid";
 import "../styles/forms/login.css";
 import {userInformation, websocketConnection} from "../lib/GlobalStates";
 import {useAtom, useSetAtom} from "jotai";
-import {logInUser} from "../services/api";
+import {logInUser} from "../services/Api";
 
 const initialValues = {
     username: "",
@@ -52,41 +52,43 @@ export default function LogIn() {
     }, [user]);
 
     return (
-        <div className="login-container">
-            <div className="login-form">
-                <h2 className="login-heading">Giriş Yap</h2>
-                <form onSubmit={handleSubmit(onSubmitForm)}>
-                    <div>
-                        <label>Username:</label>
-                        <input
-                            type="text"
-                            name="username"
-                            placeholder="Kullanıcı Adı"
-                            value={values.username}
-                            onChange={handleChange}
-                            className="input-field"
-                        />
-                        {errors.username && <p className="error-field">{errors.username}</p>}
-                    </div>
+        <div className="login-wrapper">
+            <div className="login-container">
+                <div className="login-form">
+                    <h2 className="login-heading">Giriş Yap</h2>
+                    <form onSubmit={handleSubmit(onSubmitForm)}>
+                        <div>
+                            <label>Username:</label>
+                            <input
+                                type="text"
+                                name="username"
+                                placeholder="Kullanıcı Adı"
+                                value={values.username}
+                                onChange={handleChange}
+                                className="input-field"
+                            />
+                            {errors.username && <p className="error-field">{errors.username}</p>}
+                        </div>
 
-                    <div>
-                        <label>Password:</label>
-                        <input
-                            type="password"
-                            name="password"
-                            placeholder="Şifre"
-                            value={values.password}
-                            onChange={handleChange}
-                            className="input-field"
-                        />
-                        {errors.password && <p className="error-field">{errors.password}</p>}
-                    </div>
-                    <button
-                        type="submit"
-                        className="login-button">
-                        Submit
-                    </button>
-                </form>
+                        <div>
+                            <label>Password:</label>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Şifre"
+                                value={values.password}
+                                onChange={handleChange}
+                                className="input-field"
+                            />
+                            {errors.password && <p className="error-field">{errors.password}</p>}
+                        </div>
+                        <button
+                            type="submit"
+                            className="login-button">
+                            Submit
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     );

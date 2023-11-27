@@ -1,6 +1,6 @@
 import {Outlet, Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
-import {logout, getUserInfo} from "../services/api";
+import {logout, getUserInfo} from "../services/Api";
 import {userInformation} from "../lib/GlobalStates";
 import {useSetAtom} from "jotai";
 import {useEffect} from "react";
@@ -29,7 +29,7 @@ export default function HomeLayout() {
 
     return (
         <>
-            <nav>
+            <nav className="menu-wrapper">
                 <Link
                     to="/home"
                     className="link-element">

@@ -5,7 +5,7 @@ import {useAlert} from "../context/errorMessageContext";
 import Groups from "../components/Messages/Groups";
 import MessageSection from "../components/Messages/MessageSection";
 import Profile from "../components/Messages/Profile";
-import {getInbox, getLastMessageInGroup} from "../services/api";
+import {getInbox, getLastMessageInGroup} from "../services/Api";
 import {userInformation, websocketConnection, lastMessage} from "../lib/GlobalStates";
 import {useAtomValue, useSetAtom} from "jotai";
 

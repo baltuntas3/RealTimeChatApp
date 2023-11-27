@@ -1,4 +1,4 @@
-@import url("./normalize.css");
+@import url("./styles/normalize.css");
 
 :root {
     --theme-element-color: hsl(0deg, 0%, 100%);
@@ -23,11 +23,36 @@ body {
     color: var(--theme-text-color);
     font-family: Segoe UI, Helvetica Neue, Helvetica, Lucida Grande, Arial, Ubuntu, Cantarell, Fira Sans, sans-serif;
 }
-
+/* 
 .wrapper {
-    display: flex;
+    /* display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem;
-    gap: 20px;
+    width: 100svw;
+    height: 100svh;
+    justify-content: center; 
+} */
+
+.wrapper {
+    display: grid;
+    grid-template-rows: auto 1fr; /* Menü için otomatik yükseklik, geri kalan içeriklere eşit dağılım */
+    grid-template-columns: 1fr; /* Sütunları tek bir sütun olacak şekilde ayarlıyoruz */
+    height: 100svh; /* Ekran yüksekliği kadar olan bir container olacak */
+    width: 100svw;
+    /* İçerikleri düzenleme */
+    gap: 10px; /* İçerikler arasındaki boşluk */
+}
+
+.menu-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+nav > a {
+    padding: 5px;
+
+    & a:focus-within {
+        color: red;
+    }
 }
