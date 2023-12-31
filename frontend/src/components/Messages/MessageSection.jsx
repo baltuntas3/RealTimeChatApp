@@ -123,7 +123,7 @@ export default function MessageSection({selectedGroup, handleLastMessage}) {
                         message,
                     } = val;
                     return (
-                        <div
+                        <span
                             key={id}
                             className="message ">
                             <div className={`message-content ${senderId === user._id ? "sender" : "receiver"}`}>
@@ -136,7 +136,7 @@ export default function MessageSection({selectedGroup, handleLastMessage}) {
                                 )}
                                 {message}
                             </div>
-                        </div>
+                        </span>
                     );
                 })}
             </div>

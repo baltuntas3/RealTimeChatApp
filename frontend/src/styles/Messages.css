@@ -1,9 +1,10 @@
 .container {
     display: flex;
     /* min-width: 600px;
-    max-width: 1440px;
-    width: 95vw;
+    max-width: 1440px; */
+    /* width: 95vw;
     height: 90vh; */
+    margin: 20px;
     justify-content: center;
     background-color: var(--layout-color);
     border-radius: 3px;
@@ -142,7 +143,10 @@
 }
 
 .message-section {
-    overflow: auto;
+    overflow-y: auto;
+    max-height: max-content;
+    /* flex: 1; */
+    /* overflow: auto; */
     /* background-size: 60px; */
     /* background-repeat: repeat-x; */
     /* background-color: #111b21;
@@ -150,10 +154,9 @@
     /* overflow-y: initial; */
     /* object-fit: cover; */
 
-    /* height: 600px; scroll scroloğlunu ayarla */
-    /*  */
+    height: 68svh;
 
-    --s: 60px; /* control the size */
+    --s: 60px;
     --c1: #424345;
     --c2: #0a0e11;
     --c3: #172026;
@@ -192,12 +195,11 @@
 .message-section::-webkit-scrollbar-track-piece {
     background-color: transparent;
 }
+
 .message {
     white-space: pre-wrap;
-    /*  */
 }
 .message-content {
-    width: 80%;
     border-radius: 6px;
     word-wrap: break-word;
     box-sizing: border-box;
@@ -206,7 +208,6 @@
     background: white;
     min-height: 2.25rem;
     width: fit-content;
-    max-width: 66%;
     box-shadow: 0 0 2rem rgba(black, 0.075), 0rem 1rem 1rem -1rem rgba(black, 0.1);
 }
 .sender {
@@ -223,6 +224,7 @@
     color: white;
     background-color: var(--theme-receiver-bg-color);
 }
+
 .message-bottom {
     display: flex;
     justify-content: space-between;
@@ -230,7 +232,6 @@
 }
 .message-text {
     flex: 1;
-
     border-radius: 5px;
 }
 .message-send-button {

@@ -2,36 +2,49 @@ import axios from "axios";
 
 const {VAR_BACKEND_BASE_URL} = import.meta.env;
 let isRefreshing = false;
+let refreshSubscribers = [];
 axios.defaults.baseURL = VAR_BACKEND_BASE_URL || "http://localhost:5000";
 axios.defaults.withCredentials = true;
 axios.interceptors.response.use(
     (response) => {
         return response;
     },
-    async (error) => {
-        const originalRequest = error.config;
-        if (error.response.status === 401 && !originalRequest._retry) {
-            if (isRefreshing) {
-                isRefreshing = false;
-                return axios(originalRequest);
+    (error) => {
+        const {
+            config,
+            response: {status},
+        } = error;
+        const originalRequest = config;
+
+        if (status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            if (!isRefreshing) {
+                isRefreshing = true;
+                refreshAccessToken().then(() => {
+                    isRefreshing = false;
+                    onTokenRefreshed();
+                    refreshSubscribers = [];
+                });
             }
 
-            originalRequest._retry = true;
-            isRefreshing = true;
-
-            // Yeni bir refresh token isteği gönderir
-            const [refreshToken, err] = await handleGetRequest("/auth/refresh-token");
-
-            if (err) return (window.location.href = "/auth/login");
-
-            if (refreshToken) return axios(originalRequest);
-
-            return Promise.reject(error);
+            const retryOrigReq = new Promise((resolve, reject) => {
+                subscribeTokenRefresh(() => {
+                    resolve(axios(originalRequest));
+                });
+            });
+            return retryOrigReq;
         }
-
         return Promise.reject(error);
     }
 );
+
+function subscribeTokenRefresh(cb) {
+    refreshSubscribers.push(cb);
+}
+
+function onTokenRefreshed(token) {
+    refreshSubscribers.map((cb) => cb(token));
+}
 
 //TODO: Post, Get ve diğerleri için ayrı handler yap.
 
@@ -73,39 +86,46 @@ async function logInUser(userInformation) {
 //     }
 // }
 
-async function logout() {
-    return await handleGetRequest("auth/logout");
+// DENEMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
+function logout() {
+    return handleGetRequest("auth/logout");
 }
 
-async function getInbox() {
-    return await handleGetRequest("messages/inbox");
+function getInbox() {
+    return handleGetRequest("messages/inbox");
 }
 
-async function getMessagesByGroupId(groupId) {
-    return await handleGetRequest("messages/group-messages/" + groupId);
+function getMessagesByGroupId(groupId) {
+    return handleGetRequest("messages/group-messages/" + groupId);
 }
 
-async function registerUser(registerForm) {
-    return await handlePostRequest("auth/sign-in", {...registerForm});
+function registerUser(registerForm) {
+    return handlePostRequest("auth/sign-in", {...registerForm});
 }
 
-async function getLastMessageInGroup(groupId) {
-    return await handleGetRequest("messages/get-last-message/" + groupId);
+function getLastMessageInGroup(groupId) {
+    return handleGetRequest("messages/get-last-message/" + groupId);
 }
 
-async function sendMessage(messageBuilder) {
-    return await handlePostRequest("messages/send", messageBuilder);
+function sendMessage(messageBuilder) {
+    return handlePostRequest("messages/send", messageBuilder);
 }
 // /group-messages-pagination
-async function getMessagesPagination(payload) {
-    return await handlePostRequest("messages/group-messages-pagination", payload);
+function getMessagesPagination(payload) {
+    return handlePostRequest("messages/group-messages-pagination", payload);
 }
-async function getUserInfo() {
-    return await handleGetRequest("auth/get-user-info");
+function getUserInfo() {
+    return handleGetRequest("auth/get-user-info");
 }
-async function getAllUsers() {
-    return await handleGetRequest("users/get-all-users");
+function getAllUsers() {
+    return handleGetRequest("users/get-all-users");
 }
+
+async function refreshAccessToken() {
+    const [refreshToken, err] = await handleGetRequest("/auth/refresh-token");
+    if (err) return (window.location.href = "/auth/login");
+}
+
 export {
     registerUser,
     getInbox,

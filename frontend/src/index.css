@@ -37,10 +37,9 @@ body {
     display: grid;
     grid-template-rows: auto 1fr; /* Menü için otomatik yükseklik, geri kalan içeriklere eşit dağılım */
     grid-template-columns: 1fr; /* Sütunları tek bir sütun olacak şekilde ayarlıyoruz */
-    height: 100svh; /* Ekran yüksekliği kadar olan bir container olacak */
-    width: 100svw;
-    /* İçerikleri düzenleme */
-    gap: 10px; /* İçerikler arasındaki boşluk */
+    height: 90svh;
+    /* width: 100svw; */
+    gap: 10px;
 }
 
 .menu-wrapper {

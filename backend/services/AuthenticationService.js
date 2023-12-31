@@ -5,6 +5,9 @@ const ForbiddenException = require("../exceptions/ForbiddenException");
 const {PASSWORD_SALT_VAL} = process.env;
 
 class AuthenticationService {
+    /**
+     * Handles user authentication and token generation.
+     */
     async login(userInformation) {
         try {
             const user = await UserService.findByUsername(userInformation.username);
@@ -18,6 +21,9 @@ class AuthenticationService {
         }
     }
 
+    /**
+     * Generates access and refresh tokens for a user.
+     */
     async generateAccessAndRefreshTokensFromUser(userPayload) {
         const {userName, _id} = userPayload;
         const user = {userName, _id: _id.toString()};
@@ -29,10 +35,16 @@ class AuthenticationService {
         return {accessToken: accessTokenResolved, refreshToken: refresTokenResolved};
     }
 
+    /**
+     * Compares a form password with a stored password.
+     */
     passwordChecker(formPassword, password) {
         return bcrypt.compare(formPassword, password);
     }
 
+    /**
+     * Adds a new user with the provided information.
+     */
     async signIn(userInformation) {
         const hashedPassword = await bcrypt.hash(userInformation.password, Number.parseInt(PASSWORD_SALT_VAL));
 
