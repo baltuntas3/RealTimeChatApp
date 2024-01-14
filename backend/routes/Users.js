@@ -1,10 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const {UserService, AuthenticationService} = require("../services/AllServices");
+const {UserService} = require("../services/AllServices");
 const verifyToken = require("../middlewares/Auth");
 const {catchErrors} = require("../middlewares/ErrorHandler");
 
-//User Profile
 router.get(
     "profile/:id",
     catchErrors(async (req, res) => {

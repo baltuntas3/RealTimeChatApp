@@ -22,7 +22,7 @@ export default function Home() {
         users();
     }, []);
     function prepareOnlineUserList() {
-        onlineUserList.forEach((obj) => onlineUsersSet.add(obj.userId));
+        onlineUserList.forEach((obj) => onlineUsersSet.add(obj?.userId));
     }
 
     const updateOnlineUsers = () => {
@@ -47,10 +47,10 @@ export default function Home() {
             <div className="home-wrapper">
                 <div>
                     <button type="button">Grup Oluştur</button>
-                    {filteredUsers?.filter().map((user, id) => (
+                    {filteredUsers?.map((user, id) => (
                         <div key={id}>
                             <div className="profile-photo"></div>
-                            <div>{user.userName}</div>
+                            <div>{user?.userName}</div>
                             <div>{user?.status}</div>
                             <div>
                                 <button type="button">Mesaj Gönder</button>
