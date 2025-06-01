@@ -1,13 +1,39 @@
-const app = require("../");
-
-const websocketServer = require("../websocket/websocket");
+const {server, io} = require("../");
 
 const port = process.env.PORT || 5000;
-// Express
-app.listen(port, () => {
-    console.log(`Started listening on ${port}`);
+
+server.listen(port, () => {
+    console.log(`🚀 Server ${port} portunda başlatıldı`);
+    console.log(`📡 HTTP API: http://localhost:${port}`);
+    console.log(`🔌 WebSocket: ws://localhost:${port}`);
+    console.log(`📱 Socket.io bağlantısı hazır`);
 });
-// Websocket
-websocketServer.listen(3005, "0.0.0.0", () => {
-    console.log("listening on *:3005");
+
+// Graceful shutdown
+process.on("SIGTERM", () => {
+    console.log("SIGTERM alındı, server kapatılıyor...");
+    server.close(() => {
+        console.log("✅ Server güvenli şekilde kapatıldı");
+        process.exit(0);
+    });
 });
+
+process.on("SIGINT", () => {
+    console.log("SIGINT alındı, server kapatılıyor...");
+    server.close(() => {
+        console.log("✅ Server güvenli şekilde kapatıldı");
+        process.exit(0);
+    });
+});
+
+process.on("uncaughtException", (err) => {
+    console.error("❌ Uncaught Exception:", err);
+    process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+    console.error("❌ Unhandled Rejection at:", promise, "reason:", reason);
+    process.exit(1);
+});
+
+module.exports = server;

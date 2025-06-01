@@ -16,4 +16,3 @@ services:
             MONGO_CONNECTION: ""
         ports:
             - 5000:5000
-            - 3005:3005
