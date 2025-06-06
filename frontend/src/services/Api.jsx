@@ -1,72 +1,81 @@
+const {VAR_BACKEND_BASE_URL} = import.meta.env;
 import axios from "axios";
 
-const {VAR_BACKEND_BASE_URL} = import.meta.env;
 let isRefreshing = false;
-let refreshSubscribers = [];
-axios.defaults.baseURL = VAR_BACKEND_BASE_URL || "http://localhost:5000";
+let refreshPromise = null;
+
+axios.defaults.baseURL = VAR_BACKEND_BASE_URL || "http://localhost:5005";
 axios.defaults.withCredentials = true;
+
+async function handleHttpRequest(method, url, payload) {
+    try {
+        const response = await axios[method](url, payload);
+        return [response.data, undefined];
+    } catch (err) {
+        return [undefined, err.response?.data || err.message];
+    }
+}
+
+function handleGetRequest(url) {
+    return handleHttpRequest("get", url);
+}
+
+function handlePostRequest(url, payload = {}) {
+    return handleHttpRequest("post", url, payload);
+}
+
+async function refreshAccessToken() {
+    const response = await axios.get("/auth/refresh-token", {
+        skipAuthRefresh: true,
+    });
+    return response.data;
+}
+
+function handleTokenRefresh() {
+    if (isRefreshing && refreshPromise) {
+        return refreshPromise;
+    }
+
+    isRefreshing = true;
+    refreshPromise = refreshAccessToken()
+        .then((token) => {
+            return token;
+        })
+        .catch((error) => {
+            throw error;
+        })
+        .finally(() => {
+            isRefreshing = false;
+            refreshPromise = null;
+        });
+
+    return refreshPromise;
+}
+
 axios.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        const {
-            config,
-            response: {status},
-        } = error;
-        const originalRequest = config;
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config;
 
-        if (status === 401 && !originalRequest._retry) {
-            originalRequest._retry = true;
-            if (!isRefreshing) {
-                isRefreshing = true;
-                refreshAccessToken().then(() => {
-                    isRefreshing = false;
-                    onTokenRefreshed();
-                    refreshSubscribers = [];
-                });
-            }
-
-            const retryOrigReq = new Promise((resolve, reject) => {
-                subscribeTokenRefresh(() => {
-                    resolve(axios(originalRequest));
-                });
-            });
-            return retryOrigReq;
+        if (originalRequest.skipAuthRefresh) {
+            return Promise.reject(error);
         }
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            try {
+                await handleTokenRefresh();
+                return axios(originalRequest);
+            } catch (refreshError) {
+                window.location.href = "/auth/login";
+                return Promise.reject(refreshError);
+            }
+        }
+
         return Promise.reject(error);
     }
 );
-
-function subscribeTokenRefresh(cb) {
-    refreshSubscribers.push(cb);
-}
-
-function onTokenRefreshed(token) {
-    refreshSubscribers.map((cb) => cb(token));
-}
-
-//TODO: Post, Get ve diğerleri için ayrı handler yap.
-
-async function handleGetRequest(url) {
-    try {
-        const data = await axios.get(url);
-        return [data.data, undefined];
-    } catch (err) {
-        return [undefined, err.response.data];
-    }
-}
-
-async function handlePostRequest(url, payload = undefined) {
-    try {
-        if (!payload) throw new Error("Payload boş olamaz");
-        const data = await axios.post(url, payload);
-
-        return [data.data, undefined];
-    } catch (err) {
-        return [undefined, err.response.data];
-    }
-}
 
 async function logInUser(userInformation) {
     return await handlePostRequest("auth/login", {
@@ -75,18 +84,6 @@ async function logInUser(userInformation) {
     });
 }
 
-// function deleteAllCookies() {
-//     const cookies = document.cookie.split(";");
-
-//     for (let i = 0; i < cookies.length; i++) {
-//         const cookie = cookies[i];
-//         const eqPos = cookie.indexOf("=");
-//         const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-//         document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT";
-//     }
-// }
-
-// DENEMEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 function logout() {
     return handleGetRequest("auth/logout");
 }
@@ -110,31 +107,17 @@ function getLastMessageInGroup(groupId) {
 function sendMessage(messageBuilder) {
     return handlePostRequest("messages/send", messageBuilder);
 }
-// /group-messages-pagination
+
 function getMessagesPagination(payload) {
     return handlePostRequest("messages/group-messages-pagination", payload);
 }
+
 function getUserInfo() {
     return handleGetRequest("auth/get-user-info");
 }
+
 function getAllUsers() {
     return handleGetRequest("users/get-all-users");
 }
 
-async function refreshAccessToken() {
-    const [refreshToken, err] = await handleGetRequest("/auth/refresh-token");
-    if (err) return (window.location.href = "/auth/login");
-}
-
-export {
-    registerUser,
-    getInbox,
-    logout,
-    logInUser,
-    getMessagesByGroupId,
-    getLastMessageInGroup,
-    sendMessage,
-    getMessagesPagination,
-    getUserInfo,
-    getAllUsers,
-};
+export {registerUser, getInbox, logout, logInUser, getMessagesByGroupId, getLastMessageInGroup, sendMessage, getMessagesPagination, getUserInfo, getAllUsers};

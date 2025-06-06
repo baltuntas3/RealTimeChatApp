@@ -1,7 +1,8 @@
 import {atom} from "jotai";
 import {io} from "socket.io-client";
-// process.env.REACT_APP_WEBSOCKET_URL ||null, (get, set) => set( io(websocketURL)
-const websocketURL = "ws://localhost:5000";
+const {VAR_BACKEND_APP_PORT} = import.meta.env;
+
+const websocketURL = "ws://localhost:" + (VAR_BACKEND_APP_PORT || "5005");
 const userInformation = atom(null);
 const lastMessage = atom(null);
 const onlineUsers = atom([]);

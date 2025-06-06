@@ -1,6 +1,7 @@
-const {server, io} = require("../");
+const {server} = require("../");
+require("../websocket");
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 5005;
 
 server.listen(port, () => {
     console.log(`🚀 Server ${port} portunda başlatıldı`);

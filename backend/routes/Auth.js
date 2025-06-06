@@ -7,6 +7,7 @@ const TokenHelper = require("../library/TokenHelper");
 const CookieGenerator = require("../library/CookieGenerator");
 const refreshTokenBlackList = require("../library/RefreshTokenBlackList");
 const ForbiddenException = require("../exceptions/ForbiddenException");
+const AuthException = require("../exceptions/AuthException");
 
 router.get("/logout", (req, res) => {
     res.clearCookie("token");
@@ -39,16 +40,27 @@ router.post("/login", async (req, res, next) => {
 router.get(
     "/refresh-token",
     catchErrors(async (req, res, next) => {
-        const refreshToken =
-            (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.refreshToken;
-        if (!refreshToken) return next(new ForbiddenException("Invalid Token!"));
-        if (refreshTokenBlackList.isBlacklisted(refreshToken)) return next(new ForbiddenException("Invalid Token!"));
+        const refreshToken = (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.refreshToken;
 
-        const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
-        refreshTokenBlackList.addToBlacklist(refreshToken);
-        const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(userInformation);
-        CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
-        return res.sendStatus(200);
+        if (!refreshToken) {
+            return next(new AuthException("No refresh token provided"));
+        }
+
+        if (refreshTokenBlackList.isBlacklisted(refreshToken)) {
+            return next(new AuthException("Refresh token is blacklisted"));
+        }
+
+        try {
+            const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
+            refreshTokenBlackList.addToBlacklist(refreshToken);
+            const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(userInformation);
+            CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
+            return res.sendStatus(200);
+        } catch (error) {
+            // Refresh token verification'da herhangi bir hata = 401
+            // Token expired, invalid signature, malformed token vs. hepsi 401 olmalı
+            return next(new AuthException("Invalid or expired refresh token"));
+        }
     })
 );
 

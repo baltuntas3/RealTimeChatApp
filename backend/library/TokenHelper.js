@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const {promisify} = require("util");
 const {ACCESS_SECRET_KEY, REFRESH_TOKEN_SECRET_KEY, TOKEN_EXPIRE_TIME, REFRESH_TOKEN_EXPIRE_TIME} = process.env;
-//Promisify kullandım çünkü callbackler ile Promiseler karıştırılmamalı. Bu işi en doğru şekilde promisify yapıyor.
 class TokenHelper {
     signKey(token, secret, expireTime) {
         return promisify(jwt.sign)(token, secret, {expiresIn: expireTime});

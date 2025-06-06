@@ -1,25 +1,71 @@
-const catchErrors = (fn) => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+const catchErrors = (fn) => (req, res, next) => 
+    Promise.resolve(fn(req, res, next)).catch(next);
 
 function errorHandler(err, req, res, next) {
-    let statusCode = 422;
-    if (err.name == "AuthException") statusCode = 401;
-    if (err.name == "ForbiddenException") statusCode = 403;
-    // return next(new AuthException(res.locals.t("authException")));
-
-    const errorMessage = res.locals.t(err.message) || "Somenthing went wrong!";
-    const now = Date.now();
-    const timestamp = new Date(now);
-    const errorMessages = {
-        timestamp: timestamp,
-        message: errorMessage,
-        subErrors: [],
-    };
-    if (Array.isArray(err)) {
-        const errors = err.map((error) => error.message);
-        errorMessages.subErrors.push(errors);
-        return res.status(statusCode).send(errorMessages);
+    // Eğer response zaten gönderilmişse, Express'in default error handler'ına bırak
+    if (res.headersSent) {
+        return next(err);
     }
-    return res.status(statusCode).send(errorMessages);
+
+    // Default values
+    let statusCode = 500;
+    let message = "Internal Server Error";
+
+    // Custom error types
+    if (err.name === "AuthException") {
+        statusCode = 401;
+        message = err.message;
+    } else if (err.name === "ForbiddenException") {
+        statusCode = 403;
+        message = err.message;
+    } else if (err.name === "ValidationError") {
+        statusCode = 422;
+        message = err.message;
+    } else if (err.statusCode) {
+        // Axios veya diğer HTTP error'ları için
+        statusCode = err.statusCode;
+        message = err.message;
+    }
+
+    // Localized message
+    const localizedMessage = res.locals.t ? 
+        res.locals.t(message) : message;
+
+    const errorResponse = {
+        timestamp: new Date().toISOString(),
+        message: localizedMessage,
+        subErrors: [],
+        ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    };
+
+    // Array errors için
+    if (Array.isArray(err)) {
+        errorResponse.subErrors = err.map(error => ({
+            field: error.field || null,
+            message: res.locals.t ? res.locals.t(error.message) : error.message
+        }));
+    }
+
+    // Log error (production'da)
+    if (process.env.NODE_ENV === 'production') {
+        console.error('Error:', {
+            message: err.message,
+            stack: err.stack,
+            url: req.url,
+            method: req.method,
+            ip: req.ip,
+            userAgent: req.get('User-Agent')
+        });
+    }
+
+    return res.status(statusCode).json(errorResponse);
 }
 
-module.exports = {errorHandler, catchErrors};
+// 404 handler
+function notFoundHandler(req, res, next) {
+    const error = new Error(`Route ${req.originalUrl} not found`);
+    error.statusCode = 404;
+    next(error);
+}
+
+module.exports = { errorHandler, catchErrors, notFoundHandler };
