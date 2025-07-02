@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const {AuthenticationService} = require("../services/AllServices");
 const verifyToken = require("../middlewares/Auth");
-const {catchErrors} = require("../middlewares/ErrorHandler");
+const {asyncHandler} = require("../middlewares/ErrorHandler");
 const TokenHelper = require("../library/TokenHelper");
 const CookieGenerator = require("../library/CookieGenerator");
 const refreshTokenBlackList = require("../library/RefreshTokenBlackList");
@@ -17,55 +17,50 @@ router.get("/logout", (req, res) => {
 
 router.post(
     "/sign-in",
-    catchErrors(async (req, res, next) => {
+    asyncHandler(async (req, res, next) => {
         await AuthenticationService.signIn(req.body);
-        res.sendStatus(200);
+        res.status(201).json({ success: true, message: 'User created successfully' });
     })
 );
 
-router.post("/login", async (req, res, next) => {
-    try {
-        const userInformation = {username: req.body.username, password: req.body.password};
+router.post("/login", asyncHandler(async (req, res, next) => {
+    const userInformation = {username: req.body.username, password: req.body.password};
 
-        const user = await AuthenticationService.login(userInformation);
-        const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(user);
-        CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
+    const user = await AuthenticationService.login(userInformation);
+    const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(user);
+    CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
 
-        return res.send(tokens);
-    } catch (error) {
-        return next(new Error(res.locals.t("userPass")));
-    }
-});
+    return res.status(200).json({ 
+        success: true, 
+        message: 'Login successful',
+        ...tokens 
+    });
+}));
 
 router.get(
     "/refresh-token",
-    catchErrors(async (req, res, next) => {
+    asyncHandler(async (req, res, next) => {
         const refreshToken = (req.headers["Authorization"] && req.headers["Authorization"].split(" ")[1]) || req.cookies.refreshToken;
 
         if (!refreshToken) {
-            return next(new AuthException("No refresh token provided"));
+            throw new AuthException("No refresh token provided");
         }
 
         if (refreshTokenBlackList.isBlacklisted(refreshToken)) {
-            return next(new AuthException("Refresh token is blacklisted"));
+            throw new AuthException("Refresh token is blacklisted");
         }
 
-        try {
-            const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
-            refreshTokenBlackList.addToBlacklist(refreshToken);
-            const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(userInformation);
-            CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
-            return res.sendStatus(200);
-        } catch (error) {
-            // Refresh token verification'da herhangi bir hata = 401
-            // Token expired, invalid signature, malformed token vs. hepsi 401 olmalı
-            return next(new AuthException("Invalid or expired refresh token"));
-        }
+        const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
+        refreshTokenBlackList.addToBlacklist(refreshToken);
+        const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(userInformation);
+        CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
+        
+        return res.status(200).json({ success: true, message: 'Token refreshed successfully' });
     })
 );
 
 router.get("/get-user-info", verifyToken, (req, res, next) => {
-    return res.send(req.user);
+    return res.status(200).json({ success: true, data: req.user });
 });
 
 module.exports = router;

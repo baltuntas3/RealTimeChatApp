@@ -1,5 +1,6 @@
 const {server} = require("../Index");
 const {Server} = require("socket.io");
+const logger = require('../configs/Logger');
 // Socket.io setup
 const io = new Server(server, {
     cors: {
@@ -21,29 +22,29 @@ const disconnectUser = (socketId) => {
 
 // Socket.io event handlers
 io.on("connection", (socket) => {
-    console.log("Yeni bir kullanıcı bağlandı:", socket.id);
+    logger.logWebSocket('User connected', { socketId: socket.id });
 
     socket.on("addUser", (getUserId) => {
-        console.log("Kullanıcı eklendi:", getUserId);
+        logger.logWebSocket('User added', { userId: getUserId, socketId: socket.id });
         filterUsers(getUserId, socket.id);
         io.emit("getUsers", users);
-        console.log("Aktif kullanıcılar:", users);
+        logger.debug('Active users updated', { activeUsers: users.length, users: users.map(u => u.userId) });
     });
 
     socket.on("disconnect", () => {
         disconnectUser(socket.id);
         io.emit("getUsers", users);
-        console.log(socket.id + " kullanıcısı ayrıldı.");
+        logger.logWebSocket('User disconnected', { socketId: socket.id });
     });
 
     socket.on("joinGroup", (groupId) => {
         socket.join(groupId);
-        console.log(`Kullanıcı ${socket.id} gruba katıldı: ${groupId}`);
+        logger.logWebSocket('User joined group', { socketId: socket.id, groupId });
     });
 
     socket.on("leaveGroup", (groupId) => {
         socket.leave(groupId);
-        console.log(`Kullanıcı ${socket.id} gruptan ayrıldı: ${groupId}`);
+        logger.logWebSocket('User left group', { socketId: socket.id, groupId });
     });
 
     socket.on("sendGroupMessage", ({senderId, groupId, message, createdAt}) => {
@@ -53,7 +54,7 @@ io.on("connection", (socket) => {
             message: message,
             createdAt: createdAt,
         });
-        console.log(`Grup mesajı gönderildi - Grup: ${groupId}, Gönderen: ${senderId}`);
+        logger.logWebSocket('Group message sent', { groupId, senderId });
     });
 
     socket.on("sendPrivateMessage", ({senderId, receiverId, message, createdAt}) => {
@@ -64,7 +65,7 @@ io.on("connection", (socket) => {
                 message: message,
                 createdAt: createdAt,
             });
-            console.log(`Özel mesaj gönderildi - Gönderen: ${senderId}, Alan: ${receiverId}`);
+            logger.logWebSocket('Private message sent', { senderId, receiverId });
         }
     });
 

@@ -1,24 +1,23 @@
 const express = require("express");
 const router = express.Router();
 const {UserService} = require("../services/AllServices");
-const verifyToken = require("../middlewares/Auth");
-const {catchErrors} = require("../middlewares/ErrorHandler");
+const RoleAuth = require("../middlewares/RoleAuth");
+const {asyncHandler} = require("../middlewares/ErrorHandler");
 
 router.get(
     "profile/:id",
-    catchErrors(async (req, res) => {
+    asyncHandler(async (req, res) => {
         const {id} = req.params;
         const user = await UserService.find(id, "-password");
-        res.send(user);
+        res.status(200).json({success: true, data: user});
     })
 );
 
 router.get(
     "/get-all-users",
-    verifyToken,
-    catchErrors(async (req, res) => {
-        const user = await UserService.findAllUsers();
-        res.send(user);
+    asyncHandler(async (req, res) => {
+        const users = await UserService.findAllUsers();
+        res.status(200).json({success: true, data: users});
     })
 );
 

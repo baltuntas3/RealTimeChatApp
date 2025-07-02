@@ -1,14 +1,16 @@
 import {useState, useEffect, useRef, useCallback} from "react";
 import {getMessagesPagination, sendMessage} from "../../services/Api";
 import Title from "./Title";
-import {websocketConnection, userInformation, lastMessage} from "../../lib/GlobalStates";
-import {useAtomValue, useSetAtom} from "jotai";
+import {userInformation, lastMessage} from "../../lib/GlobalStates";
+import {useAtomValue} from "jotai";
+import useWebSocket from "../../hooks/useWebSocket";
 
 export default function MessageSection({selectedGroup, handleLastMessage}) {
     const {_id: groupId} = selectedGroup;
     const user = useAtomValue(userInformation);
-    // const setLastMessage = useSetAtom(lastMessage);
-    // const [lastMessage, setLastMessage] = useState(null);
+    const globalLastMessage = useAtomValue(lastMessage);
+    const {sendMessage: sendWebSocketMessage} = useWebSocket();
+    
     const messageSection = useRef(null);
     const [newMessage, setNewMessage] = useState("");
     const [arrivalMessage, setArrivalMessage] = useState(undefined);
@@ -55,17 +57,16 @@ export default function MessageSection({selectedGroup, handleLastMessage}) {
         // eslint-disable-next-line
     }, [loading]);
 
+    // Global WebSocket message handler için optimized approach
     useEffect(() => {
-        websocketConnection.on("getGroupMessage", (obj) => {
+        if (globalLastMessage && globalLastMessage.groupId === groupId) {
             setArrivalMessage({
-                sender: {_id: obj.senderId},
-                message: obj.message,
-                createdAt: obj.createdAt,
+                sender: {_id: globalLastMessage.senderId},
+                message: globalLastMessage.message,
+                createdAt: globalLastMessage.createdAt,
             });
-            // setLastMessage(obj.message);
-        });
-        // eslint-disable-next-line
-    }, []);
+        }
+    }, [globalLastMessage, groupId]);
 
     async function handleSubmit(e) {
         const messageBuilder = {
@@ -76,7 +77,7 @@ export default function MessageSection({selectedGroup, handleLastMessage}) {
         };
         sendMessage(messageBuilder);
         setNewMessage("");
-        websocketConnection.emit("sendGroupMessage", messageBuilder);
+        sendWebSocketMessage(messageBuilder);
     }
 
     function setScrollPos() {

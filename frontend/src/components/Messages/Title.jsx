@@ -1,5 +1,5 @@
-import {websocketConnection, userInformation} from "../../lib/GlobalStates";
-import {useAtomValue, useSetAtom} from "jotai";
+import {userInformation} from "../../lib/GlobalStates";
+import {useAtomValue} from "jotai";
 
 export default function Title({selectedGroup}) {
     const user = useAtomValue(userInformation);

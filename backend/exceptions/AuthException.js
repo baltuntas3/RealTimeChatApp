@@ -1,7 +1,8 @@
-class AuthException extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "AuthException";
+const BaseError = require('./BaseError');
+
+class AuthException extends BaseError {
+    constructor(message = 'Authentication failed', statusCode = 401) {
+        super(message, statusCode);
     }
 }
 

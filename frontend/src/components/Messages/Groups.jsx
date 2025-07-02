@@ -1,7 +1,4 @@
-// import {useEffect, useState} from "react";
-// import {getLastMessageInGroup} from "../../services/api";
-// import {userInformation, websocketConnection, lastMessage} from "../../lib/GlobalStates";
-// import {useAtomValue, useAtom} from "jotai";
+// Commented out unused imports
 
 import ReactTimeAgo from "react-time-ago";
 export default function Groups({groups, handleSelectGroup}) {

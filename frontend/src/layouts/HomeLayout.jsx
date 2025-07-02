@@ -1,15 +1,11 @@
 import {Outlet, Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
-import {logout, getUserInfo} from "../services/Api";
+import {logout} from "../services/Api";
 import {userInformation} from "../lib/GlobalStates";
 import {useSetAtom} from "jotai";
-import {useEffect} from "react";
-import {useAlert} from "../context/errorMessageContext";
 
 export default function HomeLayout() {
     const navigate = useNavigate();
-    const {addMessage} = useAlert();
-
     const setUser = useSetAtom(userInformation);
 
     const logoutHandler = () => {
@@ -17,15 +13,6 @@ export default function HomeLayout() {
         setUser(null);
         navigate("/auth/login");
     };
-
-    async function getUserInformation() {
-        const [userUseroglu, err] = await getUserInfo();
-        if (err) throw addMessage(err?.message);
-        setUser(userUseroglu);
-    }
-    useEffect(() => {
-        getUserInformation();
-    }, []);
 
     return (
         <>

@@ -22,7 +22,9 @@ const UserSchema = new mongoose.Schema({
         min: 18
     },
     roles:{
-        type:[String]
+        type: [String],
+        enum: ['client', 'admin'],
+        default: ['client']
     },
     friends:[{
         type: mongoose.SchemaTypes.ObjectId,

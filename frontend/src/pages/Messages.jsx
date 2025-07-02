@@ -5,22 +5,36 @@ import {useAlert} from "../context/errorMessageContext";
 import Groups from "../components/Messages/Groups";
 import MessageSection from "../components/Messages/MessageSection";
 import Profile from "../components/Messages/Profile";
-import {getInbox, getLastMessageInGroup} from "../services/Api";
-import {userInformation, websocketConnection, lastMessage} from "../lib/GlobalStates";
+import {getInbox, getLastMessageInGroup, getUserInfo} from "../services/Api";
+import {lastMessage, userInformation} from "../lib/GlobalStates";
 import {useAtomValue, useSetAtom} from "jotai";
+import useWebSocket from "../hooks/useWebSocket";
 
 export default function MessagesPage() {
-    console.log("MESSAGES PAGE RENDERERD");
     const [groups, setGroups] = useState([]);
     const [selectedGroup, setSelectedGroup] = useState(null);
-    const [lastMessage, setLastMessage] = useState(null); //trigger re-render
+    const [localLastMessage, setLocalLastMessage] = useState(null);
     const {addMessage} = useAlert();
+    const globalLastMessage = useAtomValue(lastMessage);
+    const setUser = useSetAtom(userInformation);
+    const {joinRoom} = useWebSocket();
+
+    async function getUserInformation() {
+        const [userUseroglu, err] = await getUserInfo();
+        if (err) {
+            console.log('❌ Error fetching user info:', err);
+            return;
+        }
+        setUser(userUseroglu);
+    }
 
     async function getUserInbox() {
         const [groupChatData, error] = await getInbox();
         if (error) return addMessage("hata");
 
-        groupChatData.map(({_id}) => websocketConnection.emit("joinGroup", _id));
+        // Optimized group joining - sadece yeni grupları join et
+        groupChatData.forEach(({_id}) => joinRoom(_id));
+        
         const lastMessageList = [];
         for (let i = 0; i < groupChatData.length; i++) {
             lastMessageList.push(getLastMessageInGroup(groupChatData[i]._id));
@@ -35,19 +49,26 @@ export default function MessagesPage() {
         setGroups(mergedData);
     }
 
+    // Global WebSocket message handler
     useEffect(() => {
-        websocketConnection.on("getGroupMessage", (obj) => {
-            const matchingIndex = groups.findIndex((item) => item._id === obj.groupId);
-            const sender = groups[matchingIndex]?.participants.find(({_id: userId}) => userId === obj.senderId);
-            if (matchingIndex != -1) {
-                groups[matchingIndex].lastMessage = {sender, message: obj.message};
-                groups[matchingIndex].lastMessage.createdAt = obj.createdAt;
-                setLastMessage(obj.message);
+        if (globalLastMessage) {
+            const matchingIndex = groups.findIndex((item) => item._id === globalLastMessage.groupId);
+            const sender = groups[matchingIndex]?.participants.find(({_id: userId}) => userId === globalLastMessage.senderId);
+            if (matchingIndex !== -1) {
+                const updatedGroups = [...groups];
+                updatedGroups[matchingIndex].lastMessage = {
+                    sender, 
+                    message: globalLastMessage.message,
+                    createdAt: globalLastMessage.createdAt
+                };
+                setGroups(updatedGroups);
+                setLocalLastMessage(globalLastMessage.message);
             }
-        });
-    }, [groups]);
+        }
+    }, [globalLastMessage, groups]);
 
     useEffect(() => {
+        getUserInformation();
         getUserInbox();
         // eslint-disable-next-line
     }, []);

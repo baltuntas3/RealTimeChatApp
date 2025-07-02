@@ -1,12 +1,22 @@
-import {useNavigate} from "react-router-dom";
-import {useEffect} from "react";
+import { useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
 
-export default function PrivateRoute({children}) {
+export default function PrivateRoute({ children }) {
+    const { isAuthenticated } = useAuthContext();
     const navigate = useNavigate();
-    // useEffect(() => {
-    //     // console.log(user);
-    //     if (!user && !isUserLoggedIn) navigate("/auth/login");
-    // }, [user]);
+    const location = useLocation();
 
-    return children;
+    useEffect(() => {
+        if (!isAuthenticated()) {
+            // Save the attempted location for redirecting after login
+            navigate("/auth/login", { 
+                state: { from: location },
+                replace: true 
+            });
+        }
+    }, [isAuthenticated, navigate, location]);
+
+    // Only render children if user is authenticated
+    return isAuthenticated() ? children : null;
 }

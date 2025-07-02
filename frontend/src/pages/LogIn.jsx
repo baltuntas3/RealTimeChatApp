@@ -1,14 +1,10 @@
 import {useState, useRef, useEffect} from "react";
-import {useNavigate} from "react-router-dom";
-// import jwt_decode from "jwt-decode";
-// import Input from "../components/Input";
-// import { logIn } from "../services/api";
+import {useNavigate, useLocation} from "react-router-dom";
 import jwtDecode from "jwt-decode";
 import {useAlert} from "../context/errorMessageContext";
 import useFormValid from "../hooks/useFormValid";
 import "../styles/forms/login.css";
-import {userInformation, websocketConnection} from "../lib/GlobalStates";
-import {useAtom, useSetAtom} from "jotai";
+import {useAuthContext} from "../context/AuthContext";
 import {logInUser} from "../services/Api";
 
 const initialValues = {
@@ -30,26 +26,38 @@ const validationRules = {
 
 export default function LogIn() {
     const navigate = useNavigate();
-    const [user, setUser] = useAtom(userInformation);
+    const location = useLocation();
+    const { user, setUser } = useAuthContext();
     const {addMessage} = useAlert();
     const {values, errors, handleChange, handleSubmit} = useFormValid(initialValues, validationRules);
 
+    // Get the redirect location from state (set by PrivateRoute)
+    const from = location.state?.from?.pathname || "/home";
+
     async function fetchCurrentUser(payload) {
         const [data, error] = await logInUser(payload);
-        if (error) return addMessage(error.message);
-        setUser(jwtDecode(data.accessToken));
-        // setIsUserLoggedIn(true);
-        navigate("/messages");
+        if (error) {
+            return addMessage(error.message);
+        }
+        
+        const decodedUser = jwtDecode(data.accessToken);
+        setUser(decodedUser);
+        
+        // Small delay to ensure state is set before navigation
+        setTimeout(() => {
+            navigate(from, { replace: true });
+        }, 100);
     }
 
     const onSubmitForm = async (formData) => {
-        // Form verilerini dışarı aktarma işlemi
         await fetchCurrentUser(formData);
     };
 
     useEffect(() => {
-        if (user) navigate("/profile");
-    }, [user]);
+        if (user) {
+            navigate(from, { replace: true });
+        }
+    }, [user, navigate, from]);
 
     return (
         <div className="login-wrapper">

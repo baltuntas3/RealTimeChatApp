@@ -25,8 +25,9 @@ class AuthenticationService {
      * Generates access and refresh tokens for a user.
      */
     async generateAccessAndRefreshTokensFromUser(userPayload) {
-        const {userName, _id} = userPayload;
-        const user = {userName, _id: _id.toString()};
+        const {userName, _id, roles} = userPayload;
+        
+        const user = {userName, _id: _id.toString(), roles};
 
         const accessToken = TokenHelper.generateAccessToken(user);
         const refreshToken = TokenHelper.generateRefreshToken(user);
@@ -53,6 +54,7 @@ class AuthenticationService {
             password: hashedPassword,
             email: userInformation.email,
             age: userInformation.age,
+            roles: userInformation.roles || ['client']
         });
     }
 }

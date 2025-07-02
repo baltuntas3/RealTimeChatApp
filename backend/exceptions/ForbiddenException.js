@@ -1,7 +1,8 @@
-class ForbiddenException extends Error {
-    constructor(message) {
-        super(message);
-        this.name = "ForbiddenException";
+const BaseError = require('./BaseError');
+
+class ForbiddenException extends BaseError {
+    constructor(message = 'Access forbidden', statusCode = 403) {
+        super(message, statusCode);
     }
 }
 

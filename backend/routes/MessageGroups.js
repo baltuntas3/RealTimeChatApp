@@ -1,19 +1,20 @@
 const express = require("express");
-const {catchErrors} = require("../middlewares/ErrorHandler");
+const {asyncHandler} = require("../middlewares/ErrorHandler");
 const router = express.Router();
 const verifyToken = require("../middlewares/Auth");
 const {MessageGroupService} = require("../services/AllServices");
+const logger = require('../configs/Logger');
 
 router.post(
     "/add-group",
     verifyToken,
-    catchErrors(async (req, res) => {
+    asyncHandler(async (req, res) => {
         const loggedInUserId = req.user._id;
         const {participants} = req.body;
         participants.push(loggedInUserId);
-        console.log(participants);
+        logger.debug('Creating message group', { participants, loggedInUserId });
         const group = await MessageGroupService.addGroup(participants);
-        res.send(group);
+        res.status(200).json({ success: true, data: group });
     })
 );
 
