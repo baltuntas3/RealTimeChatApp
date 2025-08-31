@@ -11,10 +11,16 @@ class AuthenticationService {
     async login(userInformation) {
         try {
             const user = await UserService.findByUsername(userInformation.username);
+            if (!user) {
+                throw new ForbiddenException("userPass");
+            }
+            
             const isUserVerified = await this.passwordChecker(userInformation.password, user.password);
-
-            if (user && isUserVerified) {
+            
+            if (isUserVerified) {
                 return user;
+            } else {
+                throw new ForbiddenException("userPass");
             }
         } catch (error) {
             throw new ForbiddenException("userPass");
@@ -25,9 +31,10 @@ class AuthenticationService {
      * Generates access and refresh tokens for a user.
      */
     async generateAccessAndRefreshTokensFromUser(userPayload) {
-        const {userName, _id, roles} = userPayload;
-        
-        const user = {userName, _id: _id.toString(), roles};
+        const {username, _id, roles} = userPayload;
+        console.log(userPayload, "+++");
+
+        const user = {username, _id: _id.toString(), roles};
 
         const accessToken = TokenHelper.generateAccessToken(user);
         const refreshToken = TokenHelper.generateRefreshToken(user);
@@ -54,7 +61,7 @@ class AuthenticationService {
             password: hashedPassword,
             email: userInformation.email,
             age: userInformation.age,
-            roles: userInformation.roles || ['client']
+            roles: userInformation.roles || ["client"],
         });
     }
 }

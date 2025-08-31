@@ -1,8 +1,7 @@
-import {userInformation} from "../../lib/GlobalStates";
-import {useAtomValue} from "jotai";
+import {useAuthContext} from "../../context/AuthContext";
 
 export default function Title({selectedGroup}) {
-    const user = useAtomValue(userInformation);
+    const {user} = useAuthContext();
     // const { groupName, participants } = selectedGroup;
 
     function getSenderName() {

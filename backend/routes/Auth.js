@@ -10,32 +10,36 @@ const ForbiddenException = require("../exceptions/ForbiddenException");
 const AuthException = require("../exceptions/AuthException");
 
 router.get("/logout", (req, res) => {
-    res.clearCookie("token");
-    res.clearCookie("refreshToken");
-    res.status(200).send(res.locals.t("logOut"));
+    res.clearCookie("accessToken", { path: "/" });
+    res.clearCookie("refreshToken", { path: "/" });
+    res.status(200).json({success: true, message: "Logged out successfully"});
 });
 
 router.post(
     "/sign-in",
     asyncHandler(async (req, res, next) => {
         await AuthenticationService.signIn(req.body);
-        res.status(201).json({ success: true, message: 'User created successfully' });
+        res.status(201).json({success: true, message: "User created successfully"});
     })
 );
 
-router.post("/login", asyncHandler(async (req, res, next) => {
-    const userInformation = {username: req.body.username, password: req.body.password};
+router.post(
+    "/login",
+    asyncHandler(async (req, res, next) => {
+        const userInformation = {username: req.body.username, password: req.body.password};
 
-    const user = await AuthenticationService.login(userInformation);
-    const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(user);
-    CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
+        console.log(userInformation, "---");
+        const user = await AuthenticationService.login(userInformation);
+        const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(user);
+        CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
 
-    return res.status(200).json({ 
-        success: true, 
-        message: 'Login successful',
-        ...tokens 
-    });
-}));
+        return res.status(200).json({
+            success: true,
+            message: "Login successful",
+            ...tokens,
+        });
+    })
+);
 
 router.get(
     "/refresh-token",
@@ -51,16 +55,21 @@ router.get(
         }
 
         const userInformation = await TokenHelper.verifyRefreshToken(refreshToken);
+
+        if (!userInformation) {
+            throw new AuthException("Invalid refresh token");
+        }
+
         refreshTokenBlackList.addToBlacklist(refreshToken);
         const tokens = await AuthenticationService.generateAccessAndRefreshTokensFromUser(userInformation);
         CookieGenerator.generateAccessAndRefreshTokenCookie(res, tokens);
-        
-        return res.status(200).json({ success: true, message: 'Token refreshed successfully' });
+
+        return res.status(200).json({success: true, message: "Token refreshed successfully"});
     })
 );
 
 router.get("/get-user-info", verifyToken, (req, res, next) => {
-    return res.status(200).json({ success: true, data: req.user });
+    return res.status(200).json({success: true, data: req.user});
 });
 
 module.exports = router;

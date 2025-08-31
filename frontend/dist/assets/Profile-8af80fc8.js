@@ -1,0 +1,1 @@
+import{u as i,a as u,r as c,j as r,g as f,c as t}from"./index-93efe98d.js";function m(){const e=i(t),o=u(t);async function n(){const[a,s]=await f();if(s){console.log("❌ Error fetching user info:",s);return}o(a)}return c.useEffect(()=>{n()},[]),r.jsx("div",{className:"container",children:e&&r.jsxs(r.Fragment,{children:["Profile",e._id,e.username]})})}export{m as default};

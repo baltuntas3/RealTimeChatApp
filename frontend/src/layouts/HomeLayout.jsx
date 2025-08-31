@@ -1,17 +1,15 @@
 import {Outlet, Link} from "react-router-dom";
 import {useNavigate} from "react-router-dom";
 import {logout} from "../services/Api";
-import {userInformation} from "../lib/GlobalStates";
-import {useSetAtom} from "jotai";
+import {useAuthContext} from "../context/AuthContext";
 
 export default function HomeLayout() {
     const navigate = useNavigate();
-    const setUser = useSetAtom(userInformation);
+    const {logout: authLogout} = useAuthContext();
 
     const logoutHandler = () => {
         logout();
-        setUser(null);
-        navigate("/auth/login");
+        authLogout();
     };
 
     return (

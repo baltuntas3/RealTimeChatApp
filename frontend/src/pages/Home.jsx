@@ -1,14 +1,13 @@
 import React, {useEffect, useState} from "react";
 import {getAllUsers, getUserInfo} from "../services/Api";
-import {onlineUsers, userInformation} from "../lib/GlobalStates";
-import {useAtomValue, useSetAtom} from "jotai";
+import {useAuthContext} from "../context/AuthContext";
+import {useWebSocket} from "../lib/GlobalStates";
 import "../styles/home.css";
 
 export default function Home() {
     // Tüm kullanıcıarı listele online olanları online kısmı yap oraya ekle. Tüm kullanıcılarıda filter yap.
-    const user = useAtomValue(userInformation);
-    const setUser = useSetAtom(userInformation);
-    const onlineUserList = useAtomValue(onlineUsers);
+    const {user, setUser} = useAuthContext();
+    const {onlineUsers: onlineUserList} = useWebSocket();
     const [allUsers, setAllUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]);
 

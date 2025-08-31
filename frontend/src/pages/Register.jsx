@@ -4,8 +4,7 @@ import {useNavigate} from "react-router";
 import {useAlert} from "../context/errorMessageContext";
 import "../styles/forms/register.css";
 import useFormValid from "../hooks/useFormValid";
-import {useAtomValue} from "jotai";
-import {userInformation} from "../lib/GlobalStates";
+import {useAuthContext} from "../context/AuthContext";
 // import Alert from "../components/Alert";
 
 const initialValues = {
@@ -39,7 +38,7 @@ const Register = () => {
 
     const {values, errors, handleChange, handleSubmit} = useFormValid(initialValues, validationRules);
 
-    const user = useAtomValue(userInformation);
+    const {user} = useAuthContext();
     const {addMessage} = useAlert();
 
     const onSubmitForm = async (formData) => {

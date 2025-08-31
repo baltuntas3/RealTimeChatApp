@@ -1,140 +1,90 @@
 import { useEffect, useCallback, useRef } from 'react';
-import { useAtom, useSetAtom } from 'jotai';
-import { 
-  userInformation, 
-  lastMessage, 
-  onlineUsers, 
-  connectionStatus,
-  websocketConnectionAtom
-} from '../lib/GlobalStates';
+import { useWebSocket as useWebSocketContext } from '../lib/GlobalStates';
+import { useAuthContext } from '../context/AuthContext';
 
 export const useWebSocket = () => {
-  const [user] = useAtom(userInformation);
-  const [connection, setConnection] = useAtom(websocketConnectionAtom);
-  const [status, setStatus] = useAtom(connectionStatus);
-  const setOnlineUsers = useSetAtom(onlineUsers);
-  const setLastMessage = useSetAtom(lastMessage);
-  
+  const { user } = useAuthContext();
+  const webSocket = useWebSocketContext();
   const joinedRooms = useRef(new Set());
   const isInitialized = useRef(false);
+
+  const { connectionStatus, isConnected, connect, disconnect, send } = webSocket;
+  const connection = webSocket.connection;
 
   // Event handlers
   const handleConnect = useCallback(() => {
     console.log('✅ WebSocket connected');
-    setStatus('connected');
-    
-    if (user?._id) {
+    if (user?._id && connection) {
       connection.emit("addUser", user._id);
     }
-  }, [connection, user, setStatus]);
+  }, [connection, user]);
 
   const handleDisconnect = useCallback((reason) => {
     console.log('❌ WebSocket disconnected:', reason);
-    setStatus('disconnected');
-    setOnlineUsers([]);
     joinedRooms.current.clear();
-  }, [setStatus, setOnlineUsers]);
-
-  const handleConnectError = useCallback((error) => {
-    console.error('🔥 WebSocket connection error:', error);
-    setStatus('error');
-  }, [setStatus]);
+  }, []);
 
   const handleGetUsers = useCallback((users) => {
-    setOnlineUsers(users);
-  }, [setOnlineUsers]);
+    send({ type: 'USERS_UPDATED', users });
+  }, [send]);
 
   const handleGetGroupMessage = useCallback((messageData) => {
-    setLastMessage(messageData);
-  }, [setLastMessage]);
+    send({ type: 'MESSAGE_RECEIVED', message: messageData });
+  }, [send]);
 
   // Initialize event listeners (only once)
   useEffect(() => {
     if (!connection || isInitialized.current) return;
 
-    // Remove any existing listeners to prevent duplicates
-    connection.off('connect', handleConnect);
-    connection.off('disconnect', handleDisconnect);
-    connection.off('connect_error', handleConnectError);
-    connection.off('getUsers', handleGetUsers);
-    connection.off('getGroupMessage', handleGetGroupMessage);
-
-    // Add new listeners
     connection.on('connect', handleConnect);
     connection.on('disconnect', handleDisconnect);
-    connection.on('connect_error', handleConnectError);
     connection.on('getUsers', handleGetUsers);
     connection.on('getGroupMessage', handleGetGroupMessage);
 
     isInitialized.current = true;
 
     return () => {
-      // Cleanup on unmount
       connection.off('connect', handleConnect);
       connection.off('disconnect', handleDisconnect);
-      connection.off('connect_error', handleConnectError);
       connection.off('getUsers', handleGetUsers);
       connection.off('getGroupMessage', handleGetGroupMessage);
       isInitialized.current = false;
     };
-  }, [connection, handleConnect, handleDisconnect, handleConnectError, handleGetUsers, handleGetGroupMessage]);
+  }, [connection, handleConnect, handleDisconnect, handleGetUsers, handleGetGroupMessage]);
 
   // Connection management based on user state
   useEffect(() => {
-    if (user && status === 'disconnected') {
-      setConnection({ type: 'CONNECT' });
-    } else if (!user && status !== 'disconnected') {
-      setConnection({ type: 'DISCONNECT' });
+    if (user && !isConnected) {
+      connect();
+    } else if (!user && isConnected) {
+      disconnect();
     }
-  }, [user, status, setConnection]);
-
-  // API methods
-  const connect = useCallback(() => {
-    if (status !== 'connected' && status !== 'connecting') {
-      setConnection({ type: 'CONNECT' });
-    }
-  }, [status, setConnection]);
-
-  const disconnect = useCallback(() => {
-    if (status !== 'disconnected') {
-      setConnection({ type: 'DISCONNECT' });
-    }
-  }, [status, setConnection]);
-
-  const reset = useCallback(() => {
-    setConnection({ type: 'RESET' });
-    joinedRooms.current.clear();
-  }, [setConnection]);
+  }, [user, isConnected, connect, disconnect]);
 
   const joinRoom = useCallback((roomId) => {
-    if (!roomId || joinedRooms.current.has(roomId) || status !== 'connected') {
+    if (!roomId || joinedRooms.current.has(roomId) || !isConnected) {
       return;
     }
     
-    connection.emit('joinGroup', roomId);
+    connection?.emit('joinGroup', roomId);
     joinedRooms.current.add(roomId);
-  }, [connection, status]);
+  }, [connection, isConnected]);
 
   const leaveRoom = useCallback((roomId) => {
-    if (joinedRooms.current.has(roomId) && status === 'connected') {
-      connection.emit('leaveGroup', roomId);
+    if (joinedRooms.current.has(roomId) && isConnected) {
+      connection?.emit('leaveGroup', roomId);
       joinedRooms.current.delete(roomId);
     }
-  }, [connection, status]);
+  }, [connection, isConnected]);
 
   const sendMessage = useCallback((messageData) => {
-    if (status === 'connected') {
-      connection.emit('sendGroupMessage', messageData);
+    if (isConnected) {
+      connection?.emit('sendGroupMessage', messageData);
     }
-  }, [connection, status]);
+  }, [connection, isConnected]);
 
   return {
-    connection,
-    status,
-    isConnected: status === 'connected',
-    connect,
-    disconnect,
-    reset,
+    ...webSocket,
     joinRoom,
     leaveRoom,
     sendMessage,

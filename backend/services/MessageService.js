@@ -10,6 +10,8 @@ class MessageService extends Service {
             sender: senderId,
             message: message,
         });
+
+        return sendMessage;
     }
 
     async findAllMessages(groupId) {

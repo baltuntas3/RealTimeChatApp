@@ -1,11 +1,9 @@
-import {useAtomValue, useSetAtom} from "jotai";
-import {userInformation} from "../lib/GlobalStates";
+import {useAuthContext} from "../context/AuthContext";
 import {getUserInfo} from "../services/Api";
 import {useEffect} from "react";
 
 export default function ProfilePage() {
-    const user = useAtomValue(userInformation);
-    const setUser = useSetAtom(userInformation);
+    const {user, setUser} = useAuthContext();
 
     async function getUserInformation() {
         const [userUseroglu, err] = await getUserInfo();

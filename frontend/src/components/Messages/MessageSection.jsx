@@ -1,14 +1,14 @@
 import {useState, useEffect, useRef, useCallback} from "react";
 import {getMessagesPagination, sendMessage} from "../../services/Api";
 import Title from "./Title";
-import {userInformation, lastMessage} from "../../lib/GlobalStates";
-import {useAtomValue} from "jotai";
+import {useAuthContext} from "../../context/AuthContext";
+import {useWebSocket as useWebSocketContext} from "../../lib/GlobalStates";
 import useWebSocket from "../../hooks/useWebSocket";
 
 export default function MessageSection({selectedGroup, handleLastMessage}) {
     const {_id: groupId} = selectedGroup;
-    const user = useAtomValue(userInformation);
-    const globalLastMessage = useAtomValue(lastMessage);
+    const {user} = useAuthContext();
+    const {lastMessage: globalLastMessage} = useWebSocketContext();
     const {sendMessage: sendWebSocketMessage} = useWebSocket();
     
     const messageSection = useRef(null);

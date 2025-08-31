@@ -6,6 +6,7 @@ import PrivateRoute from "./components/PrivateRoute";
 import HomeLayout from "./layouts/HomeLayout";
 import AuthLayout from "./layouts/AuthLayout";
 import { AuthProvider } from "./context/AuthContext";
+import { WebSocketProvider } from "./lib/GlobalStates";
 import useWebSocket from "./hooks/useWebSocket";
 
 // Lazy load pages for better performance
@@ -72,7 +73,9 @@ function AppContent() {
 function App() {
     return (
         <AuthProvider>
-            <AppContent />
+            <WebSocketProvider>
+                <AppContent />
+            </WebSocketProvider>
         </AuthProvider>
     );
 }

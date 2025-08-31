@@ -6,8 +6,8 @@ import Groups from "../components/Messages/Groups";
 import MessageSection from "../components/Messages/MessageSection";
 import Profile from "../components/Messages/Profile";
 import {getInbox, getLastMessageInGroup, getUserInfo} from "../services/Api";
-import {lastMessage, userInformation} from "../lib/GlobalStates";
-import {useAtomValue, useSetAtom} from "jotai";
+import {useAuthContext} from "../context/AuthContext";
+import {useWebSocket as useWebSocketContext} from "../lib/GlobalStates";
 import useWebSocket from "../hooks/useWebSocket";
 
 export default function MessagesPage() {
@@ -15,8 +15,8 @@ export default function MessagesPage() {
     const [selectedGroup, setSelectedGroup] = useState(null);
     const [localLastMessage, setLocalLastMessage] = useState(null);
     const {addMessage} = useAlert();
-    const globalLastMessage = useAtomValue(lastMessage);
-    const setUser = useSetAtom(userInformation);
+    const {lastMessage: globalLastMessage} = useWebSocketContext();
+    const {setUser} = useAuthContext();
     const {joinRoom} = useWebSocket();
 
     async function getUserInformation() {

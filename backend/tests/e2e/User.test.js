@@ -7,13 +7,13 @@ const UserModel = require("../../models/Users");
 describe("users", () => {
     let { MONGO_CONNECTION } = process.env;
 
-    beforeAll(() => {
-        mongoose.connect(MONGO_CONNECTION, { useNewUrlParser: true, useCreateIndex: true }, (err) => {
-            if (err) {
-                console.error(err, "hata");
-                process.exit(1);
-            }
-        });
+    beforeAll(async () => {
+        try {
+            await mongoose.connect(MONGO_CONNECTION);
+        } catch (err) {
+            console.error(err, "hata");
+            process.exit(1);
+        }
     });
 
     afterAll(async () => {
@@ -21,7 +21,7 @@ describe("users", () => {
     });
 
     afterEach(async () => {
-        await UserModel.remove({});
+        await UserModel.deleteMany({});
     });
 
     test("creates a new user", async () => {
