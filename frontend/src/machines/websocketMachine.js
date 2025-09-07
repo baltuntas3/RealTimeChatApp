@@ -2,7 +2,7 @@ import { createMachine, assign } from 'xstate';
 import { io } from 'socket.io-client';
 
 export const websocketMachine = createMachine({
-  id: 'websocket',
+  id: `websocket-${Date.now()}`, // Force reload with timestamp
   initial: 'disconnected',
   context: {
     connection: null,
@@ -119,6 +119,8 @@ export const websocketMachine = createMachine({
       const { VAR_BACKEND_APP_PORT } = import.meta.env;
       const websocketURL = `ws://localhost:${VAR_BACKEND_APP_PORT || "5005"}`;
       
+      console.log('🔌 Creating WebSocket connection to:', websocketURL);
+      
       const connection = io(websocketURL, {
         autoConnect: false,
         transports: ['websocket', 'polling'],
@@ -129,14 +131,17 @@ export const websocketMachine = createMachine({
         reconnectionDelay: 1000,
         reconnectionDelayMax: 5000,
         maxReconnectionAttempts: 5,
+        withCredentials: true, // Send cookies with WebSocket connection
       });
 
       return new Promise((resolve, reject) => {
         connection.on('connect', () => {
+          console.log('✅ WebSocket connected successfully');
           resolve(connection);
         });
 
         connection.on('connect_error', (error) => {
+          console.error('❌ WebSocket connection error:', error);
           reject(error);
         });
 
@@ -145,6 +150,7 @@ export const websocketMachine = createMachine({
     },
     disconnectService: async (context) => {
       if (context.connection) {
+        console.log('🔒 Disconnecting WebSocket...');
         context.connection.disconnect();
         context.connection.removeAllListeners();
       }

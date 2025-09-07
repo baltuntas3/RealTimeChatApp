@@ -20,17 +20,30 @@ export default function MessagesPage() {
     const {joinRoom} = useWebSocket();
 
     async function getUserInformation() {
-        const [userUseroglu, err] = await getUserInfo();
+        const [response, err] = await getUserInfo();
         if (err) {
             console.log('❌ Error fetching user info:', err);
             return;
         }
-        setUser(userUseroglu);
+        // Extract user data from API response
+        const userData = response?.data || response;
+        setUser(userData);
     }
 
     async function getUserInbox() {
-        const [groupChatData, error] = await getInbox();
+        const [response, error] = await getInbox();
         if (error) return addMessage("hata");
+        
+        console.log('📥 Inbox data:', response, typeof response);
+        
+        // Extract data array from API response
+        const groupChatData = response?.data || [];
+        
+        // Check if groupChatData is array and has data
+        if (!Array.isArray(groupChatData)) {
+            console.error('❌ groupChatData is not an array:', groupChatData);
+            return;
+        }
 
         // Optimized group joining - sadece yeni grupları join et
         groupChatData.forEach(({_id}) => joinRoom(_id));
@@ -68,7 +81,6 @@ export default function MessagesPage() {
     }, [globalLastMessage, groups]);
 
     useEffect(() => {
-        getUserInformation();
         getUserInbox();
         // eslint-disable-next-line
     }, []);

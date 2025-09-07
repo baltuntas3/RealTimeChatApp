@@ -1,6 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import { useMachine } from '@xstate/react';
-import { websocketMachine } from '../machines/websocketMachine';
+import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { io } from 'socket.io-client';
 
 const WebSocketContext = createContext(null);
 
@@ -13,19 +12,94 @@ export const useWebSocket = () => {
 };
 
 export const WebSocketProvider = ({ children }) => {
-  const [state, send] = useMachine(websocketMachine);
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [onlineUsers, setOnlineUsers] = useState([]);
+  const [lastMessage, setLastMessage] = useState(null);
+  const [error, setError] = useState(null);
+  const connectionRef = useRef(null);
 
-  const connect = () => send({ type: 'CONNECT' });
-  const disconnect = () => send({ type: 'DISCONNECT' });
+  const connect = useCallback(() => {
+    if (connectionStatus === 'connecting' || connectionStatus === 'connected' || connectionRef.current) {
+      console.log('🔄 Connection already exists or in progress, skipping...');
+      return;
+    }
+
+    console.log('🔌 Starting WebSocket connection...');
+    setConnectionStatus('connecting');
+    setError(null);
+
+    const { VAR_BACKEND_APP_PORT } = import.meta.env;
+    const websocketURL = `ws://localhost:${VAR_BACKEND_APP_PORT || "5005"}`;
+    
+    console.log('🔌 Creating WebSocket connection to:', websocketURL);
+    
+    const connection = io(websocketURL, {
+      autoConnect: false,
+      transports: ['websocket', 'polling'],
+      withCredentials: true,
+      timeout: 10000,
+      reconnection: true,
+      reconnectionDelay: 1000,
+      maxReconnectionAttempts: 5,
+    });
+
+    connection.on('connect', () => {
+      console.log('✅ WebSocket connected successfully');
+      setConnectionStatus('connected');
+      setError(null);
+    });
+
+    connection.on('connect_error', (error) => {
+      console.error('❌ WebSocket connection error:', error);
+      setConnectionStatus('disconnected');
+      setError('Connection failed');
+    });
+
+    connection.on('disconnect', (reason) => {
+      console.log('Connection lost:', reason);
+      setConnectionStatus('disconnected');
+    });
+
+    connection.on('getGroupMessage', (message) => {
+      console.log('📨 Received group message:', message);
+      setLastMessage(message);
+    });
+
+    connection.on('getUsers', (users) => {
+      console.log('👥 Users updated:', users);
+      setOnlineUsers(users);
+    });
+
+    connectionRef.current = connection;
+    connection.connect();
+  }, [connectionStatus]);
+
+  const disconnect = useCallback(() => {
+    if (connectionRef.current) {
+      console.log('🔒 Disconnecting WebSocket...');
+      connectionRef.current.disconnect();
+      connectionRef.current.removeAllListeners();
+      connectionRef.current = null;
+    }
+    setConnectionStatus('disconnected');
+    setOnlineUsers([]);
+    setLastMessage(null);
+    setError(null);
+  }, []);
+
+  const send = useCallback((data) => {
+    // For compatibility with existing code
+    console.log('📤 WebSocket data:', data);
+  }, []);
 
   const value = {
-    connectionStatus: state.value,
-    onlineUsers: state.context.onlineUsers,
-    lastMessage: state.context.lastMessage,
-    error: state.context.error,
-    connection: state.context.connection,
-    isConnected: state.matches('connected'),
-    isConnecting: state.matches('connecting'),
+    connectionStatus,
+    onlineUsers,
+    lastMessage,
+    error,
+    connection: connectionRef.current,
+    isConnected: connectionStatus === 'connected',
+    isConnecting: connectionStatus === 'connecting',
     connect,
     disconnect,
     send
@@ -37,4 +111,3 @@ export const WebSocketProvider = ({ children }) => {
     </WebSocketContext.Provider>
   );
 };
-

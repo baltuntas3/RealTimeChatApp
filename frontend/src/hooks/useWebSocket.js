@@ -15,6 +15,7 @@ export const useWebSocket = () => {
   const handleConnect = useCallback(() => {
     console.log('✅ WebSocket connected');
     if (user?._id && connection) {
+      console.log('👤 Adding user to WebSocket:', user._id);
       connection.emit("addUser", user._id);
     }
   }, [connection, user]);
@@ -54,12 +55,21 @@ export const useWebSocket = () => {
 
   // Connection management based on user state
   useEffect(() => {
-    if (user && !isConnected) {
+    console.log('🔌 WebSocket user state change:', { 
+      user: !!user, 
+      userId: user?._id, 
+      isConnected, 
+      connectionStatus 
+    });
+    
+    if (user && connectionStatus === 'disconnected') {
+      console.log('🚀 Attempting WebSocket connection...');
       connect();
     } else if (!user && isConnected) {
+      console.log('🔒 Disconnecting WebSocket...');
       disconnect();
     }
-  }, [user, isConnected, connect, disconnect]);
+  }, [user, connectionStatus, connect, disconnect]);
 
   const joinRoom = useCallback((roomId) => {
     if (!roomId || joinedRooms.current.has(roomId) || !isConnected) {
