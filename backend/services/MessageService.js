@@ -5,13 +5,11 @@ class MessageService extends Service {
     model = MessageModel;
 
     async sendMessage(groupId, senderId, message) {
-        const sendMessage = await this.add({
+        return await this.add({
             messageGroupId: groupId,
             sender: senderId,
             message: message,
         });
-
-        res.json(sendMessage);
     }
 
     async findAllMessages(groupId) {
@@ -28,6 +26,18 @@ class MessageService extends Service {
 
     async getMessagesPagination(groupId, pageNumber, nPerPage) {
         return this.queryPagination({ messageGroupId: groupId }, pageNumber, nPerPage);
+    }
+
+    async deleteMessage(messageId) {
+        return await this.deleteById(messageId);
+    }
+
+    async updateMessage(messageId, newContent) {
+        return await this.updateById(messageId, { message: newContent });
+    }
+
+    async getMessageById(messageId) {
+        return await this.findById(messageId);
     }
 }
 
